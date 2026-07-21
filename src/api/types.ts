@@ -33,6 +33,11 @@ export type BscsSummary = {
   is_stale: boolean;
   block_threshold: number;
   computed_ago: string | null;
+  position_cap?: {
+    long: { effective: number; maximum: number };
+    short: { effective: number; maximum: number };
+    ratio_percent: number;
+  };
 };
 
 export type PositionTrack = {
@@ -75,6 +80,7 @@ export type Dashboard = {
   account: Pick<Account, 'id' | 'name' | 'exchange'>;
   kpis: DashboardKpis;
   bscs?: BscsSummary;
+  last_position_closed_at?: string | null;
   positions: Position[];
   generated_at: string;
 };

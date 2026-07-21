@@ -2,6 +2,15 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.1.1] — 2026-07-21
+
+### Dashboard clarity
+
+- [IMPROVED] The BSCS card shows effective versus configured LONG and SHORT
+  position caps.
+- [IMPROVED] The open-positions section shows when the selected account last
+  closed a position, with safe fallbacks for older API responses.
+
 ## [0.1.0] — 2026-07-21
 
 ### First public source release
