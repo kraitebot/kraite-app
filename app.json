@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "Kraite",
+    "slug": "kraite",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#07100D",
+    "scheme": "kraite",
+    "ios": {
+      "supportsTablet": false,
+      "appleTeamId": "FWCW3LG29Y",
+      "bundleIdentifier": "com.kraite.app",
+      "associatedDomains": [
+        "webcredentials:api.kraite.com"
+      ],
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "Kraite connects to Bruno's Mac only while testing local development builds.",
+        "NSAppTransportSecurity": {
+          "NSAllowsLocalNetworking": true
+        }
+      },
+      "config": {
+        "usesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.kraite.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#07100D",
+        "foregroundImage": "./assets/adaptive-icon.png"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-font",
+      "expo-secure-store",
+      "expo-status-bar"
+    ],
+    "extra": {
+      "apiUrl": "https://api.kraite.com/v1"
+    }
+  }
+}
