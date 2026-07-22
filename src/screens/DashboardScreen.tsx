@@ -319,8 +319,13 @@ export function DashboardScreen() {
           {dashboard.bscs ? <BscsKpi bscs={dashboard.bscs} /> : null}
 
           <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: palette.text }]}>Open positions</Text>
-            <Text style={[styles.sectionCopy, { color: palette.textSoft }]}>{lastPositionClosedLabel(dashboard.last_position_closed_at)}</Text>
+            <View>
+              <Text style={[styles.sectionTitle, { color: palette.text }]}>Open positions</Text>
+              <Text style={[styles.sectionCopy, { color: palette.textSoft }]}>{lastPositionClosedLabel(dashboard.last_position_closed_at)}</Text>
+            </View>
+            <View style={[styles.countBadge, { backgroundColor: palette.panel }]}>
+              <Text style={[styles.countText, { color: palette.text }]}>{dashboard.positions.length}</Text>
+            </View>
           </View>
 
           <View style={styles.positions}>
@@ -408,9 +413,11 @@ const styles = StyleSheet.create({
   bscsScaleLabel: { flex: 1, fontFamily: fonts.monoBold, fontSize: 7.5, lineHeight: 10, letterSpacing: 0.35, textAlign: 'center' },
   bscsCalmLabel: { flex: 2, textAlign: 'left' },
   bscsCriticalLabel: { textAlign: 'right' },
-  sectionHeader: { marginTop: spacing(1.5) },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing(1.5) },
   sectionTitle: { fontFamily: fonts.display, fontSize: 23, letterSpacing: -0.7 },
   sectionCopy: { fontFamily: fonts.regular, fontSize: 12.5, marginTop: 3 },
+  countBadge: { minWidth: 38, height: 38, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  countText: { fontFamily: fonts.monoBold, fontSize: 13 },
   positions: { gap: spacing(1.5) },
   empty: { borderWidth: 1, borderRadius: radius.card, padding: spacing(3), alignItems: 'center' },
   emptyIcon: { width: 52, height: 52, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },

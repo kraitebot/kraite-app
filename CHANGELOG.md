@@ -2,6 +2,17 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.1.2] — 2026-07-22
+
+### Dashboard clarity
+
+- [IMPROVED] The open-positions section displays its live position count beside
+  the last-close timestamp.
+
+### Verification
+
+- [VERIFIED] Type checking, 18 unit tests, Expo Doctor, and the iOS export pass.
+
 ## [0.1.1] — 2026-07-21
 
 ### Dashboard clarity
