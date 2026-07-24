@@ -1,14 +1,13 @@
-# WhereAreWe — 2026-07-19 (first mobile slice built)
+# WhereAreWe — 2026-07-24
 
 ## Current state
 
-The Expo/React Native iPhone project now lives at the repository root. It has
-a native development build, secure login flow, live dashboard client, account
-switching, foreground-only refresh, light/dark themes, and the agreed
-navigation skeleton. The folder is not yet a Git repository and Apple signing
-and distribution remain pending.
+The Expo/React Native iPhone project is versioned and signed for Bruno's paired
+iPhone. It has secure password and passkey authentication, a live dashboard,
+completed-position history, projections, account switching, foreground-only
+refresh, and matched light and dark themes.
 
-## Approved first slice
+## Working trader surfaces
 
 - Expo iPhone app using the same base stack and patterns as Traveliny.
 - Password login with secure local token storage.
@@ -18,8 +17,13 @@ and distribution remain pending.
 - Native open-position tiles based on the trader dashboard information.
 - Auto-refresh toggle enabled by default, polling every 10 seconds only while
   the app is active. No background polling.
-- Navigation stubs for Positions, Projections, Accounts, Billing, and Profile.
-  Only Dashboard works in the first slice.
+- Positions is completed history, not the currently open dashboard set.
+  It provides owner-scoped account selection, realized summary, LONG/SHORT
+  filters, expandable trade details, and cursor-based older-history loading.
+- Projections has Daily profit and Year by year sub-tabs. It matches admin's
+  realized/projected calendar, five-year combined portfolio outlook, observed
+  pessimistic/neutral/optimistic paths, and profit-funded milestone simulation.
+- Accounts, Billing, and Profile remain later product slices.
 - Premium Kraite-specific UI using the website logo, brand colours, and matched
   light/dark themes, informed by strong crypto and forex mobile products.
 
@@ -37,29 +41,31 @@ and distribution remain pending.
   routes are throttled, dashboard payloads are bounded and cheap to serve, and
   the design assumes attackers know every endpoint.
 
-## External gate
+## Device gate
 
-Apple Developer Program identity verification remains with Apple Support.
-Local simulator and development work may proceed while distribution waits.
+The paired physical iPhone is the mobile release target. A mobile release is
+not complete until the exact build is signed, installed, launched, and proven
+alive on that device.
 
 ## Implemented server boundary
 
 - `admin.kraite` serves `api.kraite.com/v1/auth/token`,
-  `api.kraite.com/v1/dashboard`, and token logout.
+  `api.kraite.com/v1/dashboard`, completed-position history, projections,
+  passkeys, and token logout.
 - Sanctum tokens are stored hashed server-side, expire after 30 days, and only
   carry `dashboard:read`.
 - Login and dashboard routes are throttled. Account reads never grant the web
   dashboard's sysadmin cross-user override.
-- The mobile response reuses the proven dashboard calculations but omits the
-  activity, connectivity, BTC, and BSCS queries. It is cached for five seconds.
+- Dashboard responses reuse proven dashboard calculations while omitting
+  browser-only activity and connectivity detail.
+- Position history returns only cleanly closed owned positions.
+- Projection responses reuse admin's account and fleet financial engines.
 - The shared `kraitebot/core` schema owns the personal access token migration.
 
 ## Verification
 
-- Native iOS simulator build: succeeded with zero Xcode warnings.
-- iOS JavaScript export: succeeded.
-- TypeScript: clean.
-- Expo Doctor: 20/20 checks.
-- Mobile refresh policy unit test: passed.
-- Mobile API security tests: 6 passed.
-- Full admin test suite: 156 passed, 738 assertions.
+- Signed physical-device build, installation, and launch are mandatory release
+  checks.
+- TypeScript, targeted unit tests, iOS export, and mobile API feature tests are
+  the local release gates.
+- Expo Doctor passes all 20 compatibility checks.

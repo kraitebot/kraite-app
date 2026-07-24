@@ -93,6 +93,121 @@ export type DashboardResponse = {
   };
 };
 
+export type PositionHistorySummary = {
+  count: number;
+  long: number;
+  short: number;
+  wins: number;
+  losses: number;
+  realized_pnl: string | null;
+};
+
+export type PositionHistory = {
+  id: number;
+  symbol: string;
+  token: string | null;
+  token_name: string | null;
+  token_image: string | null;
+  direction: 'LONG' | 'SHORT';
+  leverage: number;
+  opened_at: string | null;
+  closed_at: string | null;
+  duration_seconds: number | null;
+  entry_price: string | null;
+  exit_price: string | null;
+  quantity: string | null;
+  margin: string | null;
+  pnl: string | null;
+  return_pct: number | null;
+  was_waped: boolean;
+  was_fast_traded: boolean;
+};
+
+export type PositionHistoryPage = {
+  summary: PositionHistorySummary;
+  positions: PositionHistory[];
+  next_cursor: string | null;
+  generated_at: string;
+};
+
+export type PositionsResponse = {
+  data: {
+    accounts: Account[];
+    selected_account_id: number | null;
+    history: PositionHistoryPage | null;
+  };
+};
+
+export type ProjectionScenario = 'pessimistic' | 'neutral' | 'optimistic';
+
+export type ProjectionScenarioRates = {
+  pessimistic_pct: string | null;
+  neutral_pct: string | null;
+  optimistic_pct: string | null;
+  days_observed: number;
+  days_with_revenue: number;
+};
+
+export type ProjectionInvestmentBasis = {
+  amount: string | null;
+  known_realized_pnl: string | null;
+  tracking_started_at: string | null;
+  tracking_ended_at: string | null;
+  closed_positions: number;
+  missing_pnl_positions: number;
+  is_complete: boolean;
+};
+
+export type ProjectionCalendar = {
+  account_id: number;
+  year: number;
+  month: number;
+  actuals: Record<string, string>;
+  current_wallet: string | null;
+  month_start_wallet: string | null;
+  scenarios: ProjectionScenarioRates;
+  investment_basis: ProjectionInvestmentBasis;
+  today: string;
+};
+
+export type ProjectionMilestone = {
+  year: number;
+  label: string;
+  end_date: string;
+  days: number;
+  end_wallet: string | null;
+  projected_profit: string | null;
+  growth_pct: string | null;
+  multiple: string | null;
+};
+
+export type ProjectionYearlyScenario = {
+  daily_pct: string | null;
+  available: boolean;
+  reason: 'no_wallet' | 'no_observations' | 'invalid_rate' | null;
+  milestones: ProjectionMilestone[];
+};
+
+export type ProjectionYearly = {
+  account_count: number;
+  current_wallet: string | null;
+  days_observed: number;
+  today: string;
+  outlook: {
+    years: number;
+    scenarios: Record<ProjectionScenario, ProjectionYearlyScenario>;
+  };
+};
+
+export type ProjectionsResponse = {
+  data: {
+    accounts: Account[];
+    selected_account_id: number | null;
+    calendar: ProjectionCalendar | null;
+    yearly: ProjectionYearly;
+  };
+};
+
 export type LoginResponse = {
   token: string;
   token_type: 'Bearer';

@@ -1,43 +1,48 @@
-import type { Position } from '../api/types';
+import type { PositionHistory, PositionHistorySummary } from '../api/types';
 
-export type PositionFilter = 'ALL' | 'LONG' | 'SHORT';
-export type PositionSort = 'RISK' | 'EXPOSURE' | 'P&L';
+export type PositionHistoryFilter = 'ALL' | 'LONG' | 'SHORT';
 
-export type PositionBookSummary = {
-  open: number;
-  long: number;
-  short: number;
-  exposure: number;
-  pnl: number;
-  maxAlphaLimit: number;
-};
-
-function number(value: string | number | null): number {
-  const parsed = Number(value ?? 0);
-  return Number.isFinite(parsed) ? parsed : 0;
-}
-
-export function positionBookSummary(positions: Position[]): PositionBookSummary {
-  return positions.reduce<PositionBookSummary>((summary, position) => ({
-    open: summary.open + 1,
-    long: summary.long + (position.direction === 'LONG' ? 1 : 0),
-    short: summary.short + (position.direction === 'SHORT' ? 1 : 0),
-    exposure: summary.exposure + number(position.size),
-    pnl: summary.pnl + number(position.pnl),
-    maxAlphaLimit: Math.max(summary.maxAlphaLimit, number(position.alpha_limit_pct)),
-  }), { open: 0, long: 0, short: 0, exposure: 0, pnl: 0, maxAlphaLimit: 0 });
-}
-
-export function positionsForView(positions: Position[], filter: PositionFilter, sort: PositionSort): Position[] {
-  const filtered = filter === 'ALL'
+export function historyPositionsForFilter(
+  positions: PositionHistory[],
+  filter: PositionHistoryFilter,
+): PositionHistory[] {
+  return filter === 'ALL'
     ? positions
     : positions.filter((position) => position.direction === filter);
+}
 
-  const value = (position: Position): number => {
-    if (sort === 'EXPOSURE') return number(position.size);
-    if (sort === 'P&L') return number(position.pnl);
-    return number(position.alpha_limit_pct);
-  };
+export function historyWinRate(summary: PositionHistorySummary): number | null {
+  const decided = summary.wins + summary.losses;
+  return decided > 0 ? (summary.wins / decided) * 100 : null;
+}
 
-  return [...filtered].sort((left, right) => value(right) - value(left) || left.id - right.id);
+export function historyDuration(seconds: number | null): string {
+  if (seconds === null || !Number.isFinite(seconds) || seconds < 0) return '—';
+  if (seconds < 60) return '<1m';
+
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ${minutes % 60}m`;
+
+  const days = Math.floor(hours / 24);
+  return `${days}d ${hours % 24}h`;
+}
+
+export function historyClosedAgo(closedAt: string | null, now = Date.now()): string {
+  if (!closedAt) return 'Closed';
+
+  const elapsedSeconds = Math.max(0, Math.floor((now - new Date(closedAt).getTime()) / 1000));
+  if (!Number.isFinite(elapsedSeconds)) return 'Closed';
+  if (elapsedSeconds < 60) return 'Closed now';
+  if (elapsedSeconds < 3_600) return `Closed ${Math.floor(elapsedSeconds / 60)}m ago`;
+  if (elapsedSeconds < 86_400) return `Closed ${Math.floor(elapsedSeconds / 3_600)}h ago`;
+
+  return `Closed ${Math.floor(elapsedSeconds / 86_400)}d ago`;
+}
+
+export function historyToken(position: Pick<PositionHistory, 'token' | 'symbol'>): string {
+  if (position.token) return position.token;
+  return position.symbol.replace(/(?:USDT|USDC|USD)$/u, '') || position.symbol;
 }

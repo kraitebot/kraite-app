@@ -26,6 +26,7 @@ import { LoginScreen } from './src/screens/LoginScreen';
 import { MoreScreen } from './src/screens/MoreScreen';
 import { PasskeysScreen } from './src/screens/PasskeysScreen';
 import { PositionsScreen } from './src/screens/PositionsScreen';
+import { ProjectionsScreen } from './src/screens/ProjectionsScreen';
 import { PlaceholderScreen, StackPlaceholder } from './src/screens/PlaceholderScreen';
 import { ThemeProvider, useTheme } from './src/theme/ThemeContext';
 import { fonts } from './src/theme/tokens';
@@ -79,7 +80,7 @@ function Tabs() {
     >
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
       <Tab.Screen name="Positions" component={PositionsScreen} />
-      <Tab.Screen name="Projections">{() => <PlaceholderScreen title="Projections" icon="trending-up-outline" />}</Tab.Screen>
+      <Tab.Screen name="Projections" component={ProjectionsScreen} />
       <Tab.Screen name="Accounts">{() => <PlaceholderScreen title="Accounts" icon="link-outline" />}</Tab.Screen>
       <Tab.Screen name="More" component={MoreScreen} />
     </Tab.Navigator>

@@ -2,6 +2,22 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.2.0] — 2026-07-24
+
+### Position history and projections
+
+- [NEW FEATURE] Positions is now a closed-position journal with expandable
+  trade details and cursor-based history loading.
+- [NEW FEATURE] Projections adds Daily profit and Year by year views with
+  pessimistic, neutral, and optimistic scenarios.
+- [NEW FEATURE] The projection tools include the profit-funded milestone and
+  temporary additional-investment simulation from the admin product.
+- [IMPROVED] Expo dependencies align with the supported SDK patch versions.
+- [VERIFIED] Type checking, 9 targeted tests, Expo Doctor, and the iOS export
+  pass.
+- [SKIPPED] The complete suite was intentionally omitted by the light-release
+  policy after targeted coverage passed.
+
 ## [0.1.2] — 2026-07-22
 
 ### Dashboard clarity
