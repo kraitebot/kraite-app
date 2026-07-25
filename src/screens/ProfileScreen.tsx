@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ApiError } from '../api/client';
 import { PasskeySummary } from '../api/types';
 import { useAuth } from '../auth/AuthContext';
+import { traderInitials } from '../auth/identity';
 import { deletePasskey, isPasskeySupported, listPasskeys, registerPasskey } from '../auth/passkeys';
 import {
   isPasskeyCancellation,
@@ -22,10 +23,6 @@ import { RootStackParamList } from '../navigation/types';
 import { useTheme } from '../theme/ThemeContext';
 import { fonts, radius, spacing } from '../theme/tokens';
 import { useScreenTransition } from '../transitions/ScreenTransitionContext';
-
-function initials(name: string | undefined): string {
-  return name?.split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase() || 'TR';
-}
 
 export function ProfileScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -128,7 +125,7 @@ export function ProfileScreen() {
 
         <View style={[styles.identity, { backgroundColor: palette.panel, borderColor: palette.line }]}>
           <View style={[styles.avatar, { backgroundColor: palette.greenSoft }]}>
-            <Text style={[styles.avatarText, { color: palette.green }]}>{initials(user?.name)}</Text>
+            <Text style={[styles.avatarText, { color: palette.green }]}>{traderInitials(user?.name)}</Text>
           </View>
           <View style={styles.identityCopy}>
             <Text style={[styles.identityName, { color: palette.text }]}>{user?.name ?? 'Trader'}</Text>

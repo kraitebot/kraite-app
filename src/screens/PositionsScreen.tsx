@@ -17,8 +17,8 @@ import { api, ApiError } from '../api/client';
 import { Account, PositionHistoryPage, PositionsResponse } from '../api/types';
 import { useAuth } from '../auth/AuthContext';
 import { AccountPicker } from '../components/AccountPicker';
-import { Logo } from '../components/Logo';
 import { PositionHistoryCard } from '../components/PositionHistoryCard';
+import { ScreenHeader } from '../components/ScreenHeader';
 import { NoticeOverlay } from '../components/ScreenState';
 import { money, percent } from '../dashboard/formatters';
 import { ACCOUNT_KEY } from '../dashboard/preferences';
@@ -74,8 +74,8 @@ function FilterBar({ selected, onSelect }: {
 }
 
 export function PositionsScreen() {
-  const { palette, toggle } = useTheme();
-  const { expireSession, user } = useAuth();
+  const { palette } = useTheme();
+  const { expireSession } = useAuth();
   const insets = useSafeAreaInsets();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -184,17 +184,7 @@ export function PositionsScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void load(selectedId, null, false, true)} tintColor={palette.green} />}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.topbar}>
-          <Logo />
-          <View style={styles.topActions}>
-            <Pressable onPress={toggle} style={[styles.iconButton, { backgroundColor: palette.panel, borderColor: palette.line }]} accessibilityLabel="Toggle color theme">
-              <Ionicons name={palette.dark ? 'sunny-outline' : 'moon-outline'} size={19} color={palette.text} />
-            </Pressable>
-            <View style={[styles.avatar, { backgroundColor: palette.greenSoft }]}>
-              <Text style={[styles.avatarText, { color: palette.green }]}>{user?.name.split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase() || 'TR'}</Text>
-            </View>
-          </View>
-        </View>
+        <ScreenHeader />
 
         <View style={styles.heroHeader}>
           <View>
@@ -306,11 +296,6 @@ export function PositionsScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: { paddingHorizontal: spacing(2), paddingTop: spacing(1.75), gap: spacing(1.5) },
-  topbar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  topActions: { flexDirection: 'row', alignItems: 'center', gap: spacing(1) },
-  iconButton: { width: 42, height: 42, borderRadius: 15, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-  avatar: { width: 42, height: 42, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
-  avatarText: { fontFamily: fonts.monoBold, fontSize: 12 },
   heroHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: spacing(1.5) },
   pageEyebrow: { fontFamily: fonts.monoBold, fontSize: 9.5, letterSpacing: 1.8 },
   pageTitle: { fontFamily: fonts.display, fontSize: 36, letterSpacing: -1.5, marginTop: 2 },

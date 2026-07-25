@@ -2,6 +2,20 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.4.1] — 2026-07-25
+
+### One shared screen header
+
+- [IMPROVED] Dashboard, Positions, Projections, and Accounts now share a single
+  header instead of each carrying its own identical copy. A change to the brand
+  bar, theme toggle, or avatar is made once and every screen follows, rather
+  than needing the same edit in four places with one easy to miss.
+- [FIXED] Avatar initials no longer lose a letter when a trader's name carries a
+  leading or doubled space. The old per-screen copies split the name without
+  trimming it first, so " Bruno Falcao" showed a single initial.
+- [VERIFIED] Type checking, 33 unit tests, Expo Doctor, and the signed
+  physical-iPhone build pass. No visible change to any screen.
+
 ## [0.4.0] — 2026-07-25
 
 ### Face ID sign-in and the Profile security screen
