@@ -1,6 +1,6 @@
 {
   "name": "kraite-mobile",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "main": "index.ts",
   "private": true,
   "scripts": {
@@ -9,7 +9,7 @@
     "android": "expo run:android",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "test:unit": "node --experimental-strip-types --test src/auth/*.test.mjs src/dashboard/*.test.mjs src/components/*.test.mjs src/positions/*.test.mjs src/projections/*.test.mjs src/transitions/*.test.mjs"
+    "test:unit": "node --experimental-strip-types --test src/accounts/*.test.mjs src/auth/*.test.mjs src/dashboard/*.test.mjs src/components/*.test.mjs src/positions/*.test.mjs src/projections/*.test.mjs src/transitions/*.test.mjs"
   },
   "dependencies": {
     "@expo-google-fonts/ibm-plex-mono": "^0.4.1",

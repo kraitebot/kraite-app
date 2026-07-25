@@ -2,6 +2,31 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.3.0] — 2026-07-25
+
+### Trader account control
+
+- [NEW FEATURE] Accounts replaces its placeholder with the real configuration
+  surface: account name, portfolio and trading quote currencies, profit target,
+  stop-loss, and per-direction position slots, leverage, and margin.
+- [NEW FEATURE] New trading can be stopped immediately from the phone, on its
+  own, without saving any other edited field. Open positions stay managed.
+- [IMPROVED] The screen states what cannot be changed and why: configuration is
+  locked until the account is connected, quote currencies lock while trading is
+  enabled or positions are open, and trading cannot be switched on without an
+  active subscription and a healthy connection.
+- [SAFETY] Only curated values are offered, never free-typed numbers, so a
+  risk-relevant setting cannot leave the tested envelope from a device.
+- [SAFETY] Saved changes apply to positions opened afterwards; anything already
+  open keeps the values it was opened with. Switching accounts with unsaved
+  edits asks before discarding them.
+- [SAFETY] A sign-in that predates account editing is detected and the trader is
+  asked to sign in once more instead of failing silently.
+- [VERIFIED] Type checking, 27 unit tests, Expo Doctor, and the signed
+  physical-iPhone build pass. Requires admin.kraite v0.34.0 or later.
+- [SKIPPED] The complete suite was intentionally omitted by the light-release
+  policy after targeted coverage passed.
+
 ## [0.2.1] — 2026-07-25
 
 ### Projection calendar readability

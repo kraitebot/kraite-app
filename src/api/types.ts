@@ -11,6 +11,75 @@ export type Account = {
   is_trading: boolean;
 };
 
+export type AccountConnectivityHealth = {
+  kind: 'healthy' | 'degraded' | 'critical' | 'unconfigured';
+  label: string;
+  blocked_servers: number;
+  total_servers: number;
+};
+
+export type ManagedAccount = Account & {
+  exchange_canonical: string | null;
+  is_active: boolean;
+  disabled_reason: string | null;
+  disabled_at: string | null;
+  has_credentials: boolean;
+  requires_passphrase: boolean;
+  connectivity_health: AccountConnectivityHealth;
+  subscription_active: boolean;
+  open_positions_count: number;
+  portfolio_quote: string;
+  trading_quote: string;
+  can_trade: boolean;
+  profit_percentage: string;
+  stop_market_initial_percentage: string;
+  total_positions_long: number;
+  total_positions_short: number;
+  position_leverage_long: number;
+  position_leverage_short: number;
+  margin_percentage_long: string;
+  margin_percentage_short: string;
+  configuration_locked: boolean;
+  quotes_locked: boolean;
+  can_enable_trading: boolean;
+};
+
+export type AccountConfigurationOptions = {
+  profit_percentage: string[];
+  stop_market_initial_percentage: string[];
+  total_positions: number[];
+  position_leverage: number[];
+  margin_percentage: string[];
+};
+
+export type AccountsResponse = {
+  data: {
+    accounts: ManagedAccount[];
+    options: AccountConfigurationOptions;
+  };
+};
+
+export type AccountQuotesResponse = {
+  account_id: number;
+  assets: string[];
+};
+
+export type AccountConfigurationPayload = {
+  account_id: number;
+  name: string;
+  portfolio_quote: string;
+  trading_quote: string;
+  can_trade: boolean;
+  profit_percentage: string;
+  stop_market_initial_percentage: string;
+  total_positions_long: number;
+  total_positions_short: number;
+  position_leverage_long: number;
+  position_leverage_short: number;
+  margin_percentage_long: string;
+  margin_percentage_short: string;
+};
+
 export type DashboardKpis = {
   balance: string | null;
   balance_delta_24h_pct: number | null;

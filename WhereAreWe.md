@@ -4,8 +4,9 @@
 
 The Expo/React Native iPhone project is versioned and signed for Bruno's paired
 iPhone. It has secure password and passkey authentication, a live dashboard,
-completed-position history, projections, account switching, foreground-only
-refresh, and matched light and dark themes.
+completed-position history, projections, trader-controlled account
+configuration, account switching, foreground-only refresh, and matched light
+and dark themes.
 
 ## Working trader surfaces
 
@@ -25,7 +26,17 @@ refresh, and matched light and dark themes.
   pessimistic/neutral/optimistic paths, and profit-funded milestone simulation.
 - Daily calendar P&L values use enlarged, centered typography with a readable
   fit floor for dense amounts.
-- Accounts, Billing, and Profile remain later product slices.
+- Accounts is the trader's own configuration surface: account name, portfolio
+  and trading quote currencies, profit target, stop-loss, and per-direction
+  position slots, leverage, and margin. It also stops new trading immediately,
+  separately from saving other edits.
+- Account controls stay honest about what cannot change: configuration is
+  locked until the account is connected, quote currencies lock while trading is
+  enabled or positions are open, and trading cannot be enabled without an
+  active subscription and a healthy connection.
+- Saved changes apply only to positions opened afterwards. Open positions keep
+  the values they were opened with.
+- Billing and Profile remain later product slices.
 - Premium Kraite-specific UI using the website logo, brand colours, and matched
   light/dark themes, informed by strong crypto and forex mobile products.
 
@@ -37,8 +48,10 @@ refresh, and matched light and dark themes.
   on pheme under the API hostname. No new backend project is created.
 - `ingestion.kraite` remains private trading machinery: scheduler, streams,
   dispatch, and workers. Public mobile requests never enter that runtime.
-- First-party mobile authentication uses revocable read-only bearer tokens.
-  Full OAuth delegation is deferred until third-party clients exist.
+- First-party mobile authentication uses revocable bearer tokens. Reads and
+  account writes carry separate abilities, and the API can never place, change,
+  or close an order. Full OAuth delegation is deferred until third-party
+  clients exist.
 - Every account read is scoped to the authenticated trader. Login and data
   routes are throttled, dashboard payloads are bounded and cheap to serve, and
   the design assumes attackers know every endpoint.
@@ -53,9 +66,11 @@ alive on that device.
 
 - `admin.kraite` serves `api.kraite.com/v1/auth/token`,
   `api.kraite.com/v1/dashboard`, completed-position history, projections,
-  passkeys, and token logout.
-- Sanctum tokens are stored hashed server-side, expire after 30 days, and only
-  carry `dashboard:read`.
+  account configuration, passkeys, and token logout.
+- Sanctum tokens are stored hashed server-side, expire after 30 days, and carry
+  `dashboard:read` for every read plus `accounts:write` for the two account
+  write routes. A token issued before account editing existed still reads, is
+  refused on writes, and the app asks the trader to sign in once more.
 - Login and dashboard routes are throttled. Account reads never grant the web
   dashboard's sysadmin cross-user override.
 - Dashboard responses reuse proven dashboard calculations while omitting
