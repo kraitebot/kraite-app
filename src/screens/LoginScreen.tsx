@@ -20,6 +20,7 @@ import { ApiError } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { authenticateWithPasskey, isPasskeySupported } from '../auth/passkeys';
 import { isPasskeyCancellation, passkeyErrorMessage } from '../auth/passkeyPresentation';
+import { FaceIdIcon } from '../components/FaceIdIcon';
 import { legalLinks } from '../components/legalLinks';
 import { Logo } from '../components/Logo';
 import { NoticeOverlay } from '../components/ScreenState';
@@ -165,13 +166,13 @@ export function LoginScreen() {
                 </View>
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel="Sign in with Face ID or a passkey"
+                  accessibilityLabel="Sign in with Face ID"
                   disabled={busy || passkeyBusy}
                   onPress={() => { void usePasskey(); }}
                   style={({ pressed }) => [styles.passkey, (pressed || passkeyBusy) && styles.passkeyPressed]}
                 >
-                  {passkeyBusy ? <ActivityIndicator color="#10221B" /> : <Ionicons name="finger-print-outline" size={23} color="#10221B" />}
-                  <Text style={styles.passkeyText}>{passkeyBusy ? 'Checking passkey…' : 'Use Face ID or passkey'}</Text>
+                  {passkeyBusy ? <ActivityIndicator color="#10221B" /> : <FaceIdIcon size={23} color="#10221B" />}
+                  <Text style={styles.passkeyText}>{passkeyBusy ? 'Confirming Face ID…' : 'Sign in with Face ID'}</Text>
                 </Pressable>
               </> : null}
 

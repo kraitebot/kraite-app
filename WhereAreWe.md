@@ -11,7 +11,7 @@ and dark themes.
 ## Working trader surfaces
 
 - Expo iPhone app using the same base stack and patterns as Traveliny.
-- Password login with secure local token storage.
+- Password login and Face ID sign-in, with secure local token storage.
 - Read-only trader dashboard with account switching.
 - Four KPI tiles: portfolio value, today's realised P&L, 30-day P&L, and
   open-position long/short split.
@@ -36,7 +36,14 @@ and dark themes.
   active subscription and a healthy connection.
 - Saved changes apply only to positions opened afterwards. Open positions keep
   the values they were opened with.
-- Billing and Profile remain later product slices.
+- Profile is the trader's identity and security surface: it shows who is signed
+  in and manages Face ID sign-in — add a passkey, see when each was added and
+  last used, and remove one. A device that cannot hold passkeys is told so
+  plainly instead of being shown a failing list.
+- The login screen offers Face ID as a direct alternative to email and password,
+  and a trader with no passkey yet is invited to create one right after a
+  password sign-in.
+- Billing remains a later product slice.
 - Premium Kraite-specific UI using the website logo, brand colours, and matched
   light/dark themes, informed by strong crypto and forex mobile products.
 

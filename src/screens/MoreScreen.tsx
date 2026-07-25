@@ -6,7 +6,6 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '../auth/AuthContext';
-import { PASSKEYS_ENABLED } from '../auth/passkeys';
 import { Logo } from '../components/Logo';
 import { RootStackParamList, TabParamList } from '../navigation/types';
 import { useTheme } from '../theme/ThemeContext';
@@ -38,8 +37,7 @@ export function MoreScreen() {
       <Text style={[styles.identity, { color: palette.textSoft }]}>{user?.name ?? 'Trader'} · {user?.email || 'Secure session'}</Text>
       <View style={styles.rows}>
         {row('Billing', 'Wallet and subscription', 'card-outline', () => { void runTransition(() => navigation.navigate('Billing')); })}
-        {row('Profile', 'Identity and security', 'person-outline', () => { void runTransition(() => navigation.navigate('Profile')); })}
-        {PASSKEYS_ENABLED ? row('Passkeys', 'Face ID and passwordless sign-in', 'finger-print-outline', () => { void runTransition(() => navigation.navigate('Passkeys')); }) : null}
+        {row('Profile', 'Identity and Face ID sign-in', 'person-outline', () => { void runTransition(() => navigation.navigate('Profile')); })}
         {row('Appearance', palette.dark ? 'Switch to light theme' : 'Switch to dark theme', palette.dark ? 'sunny-outline' : 'moon-outline', toggle)}
       </View>
       <Pressable onPress={() => { void runTransition(logout); }} style={[styles.logout, { borderColor: palette.redSoft }]}>

@@ -25,7 +25,7 @@ import { DashboardScreen } from './src/screens/DashboardScreen';
 import { AccountsScreen } from './src/screens/AccountsScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { MoreScreen } from './src/screens/MoreScreen';
-import { PasskeysScreen } from './src/screens/PasskeysScreen';
+import { ProfileScreen } from './src/screens/ProfileScreen';
 import { PositionsScreen } from './src/screens/PositionsScreen';
 import { ProjectionsScreen } from './src/screens/ProjectionsScreen';
 import { StackPlaceholder } from './src/screens/PlaceholderScreen';
@@ -114,8 +114,7 @@ function RootNavigation() {
       <Stack.Navigator screenOptions={{ headerShown: false, animation: 'none', gestureEnabled: false, contentStyle: { backgroundColor: palette.canvas } }}>
         <Stack.Screen name="Tabs" component={Tabs} />
         <Stack.Screen name="Billing" component={StackPlaceholder} />
-        <Stack.Screen name="Profile" component={StackPlaceholder} />
-        <Stack.Screen name="Passkeys" component={PasskeysScreen} />
+        <Stack.Screen name="Profile" component={ProfileScreen} />
       </Stack.Navigator>
     </NavigationContainer>
     <PasskeyInvite />

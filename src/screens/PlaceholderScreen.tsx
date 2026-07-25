@@ -32,10 +32,10 @@ export function PlaceholderScreen({ title, icon, onBack }: { title: string; icon
   );
 }
 
-export function StackPlaceholder({ route }: NativeStackScreenProps<RootStackParamList, 'Billing' | 'Profile'>) {
+export function StackPlaceholder({ route }: NativeStackScreenProps<RootStackParamList, 'Billing'>) {
   const { runTransition } = useScreenTransition();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  return <PlaceholderScreen title={route.name} icon={route.name === 'Billing' ? 'card-outline' : 'person-outline'} onBack={() => { void runTransition(() => navigation.goBack()); }} />;
+  return <PlaceholderScreen title={route.name} icon="card-outline" onBack={() => { void runTransition(() => navigation.goBack()); }} />;
 }
 
 const styles = StyleSheet.create({

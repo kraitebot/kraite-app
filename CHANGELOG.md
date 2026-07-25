@@ -2,6 +2,31 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.4.0] — 2026-07-25
+
+### Face ID sign-in and the Profile security screen
+
+- [NEW FEATURE] Face ID sign-in is live. The login screen offers it as a direct
+  alternative to email and password, and needs neither before the prompt.
+- [NEW FEATURE] Profile replaces its placeholder with the trader's identity and
+  security surface: who is signed in, plus adding a passkey, seeing when each
+  was added and last used, and removing one.
+- [IMPROVED] Passkey management now lives in exactly one place. The separate
+  Passkeys screen was folded into Profile and removed.
+- [IMPROVED] The login button carries a drawn Face ID mark instead of a
+  fingerprint, matching what the system prompt actually asks for.
+- [IMPROVED] A device that cannot hold passkeys is told so plainly and makes no
+  pointless request, instead of showing a failing list.
+- [FIXED] A passkey with no recorded creation date rendered as "Added Never
+  used". Added and last-used are now separate readings.
+- [FIXED] A malformed timestamp from the server crashed the row it appeared in,
+  because the date formatter raises rather than degrading. It now falls back to
+  a dash.
+- [VERIFIED] Type checking, 30 unit tests, Expo Doctor, and the signed
+  physical-iPhone build pass. Requires admin.kraite v0.34.0 or later.
+- [SKIPPED] The complete suite was intentionally omitted by the light-release
+  policy after targeted coverage passed.
+
 ## [0.3.0] — 2026-07-25
 
 ### Trader account control

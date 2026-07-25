@@ -12,5 +12,4 @@ export type RootStackParamList = {
   Tabs: NavigatorScreenParams<TabParamList> | undefined;
   Billing: undefined;
   Profile: undefined;
-  Passkeys: undefined;
 };

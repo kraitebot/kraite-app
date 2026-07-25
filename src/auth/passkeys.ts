@@ -14,7 +14,7 @@ import {
   PasskeyOptionsResponse,
 } from '../api/types';
 
-export const PASSKEYS_ENABLED = false;
+export const PASSKEYS_ENABLED = true;
 
 export function isPasskeySupported(): boolean {
   return PASSKEYS_ENABLED && Passkey.isSupported();

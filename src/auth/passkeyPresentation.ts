@@ -32,10 +32,51 @@ export function passkeyErrorMessage(failure: unknown): string {
   }
 }
 
+/**
+ * `accountHasPasskey` is the login response's `passkeys_enabled`, which the
+ * server resolves from whether the trader already owns at least one passkey —
+ * not from a feature switch. The invite is therefore offered only to accounts
+ * that have none yet.
+ */
 export function shouldOfferPasskey(
   supported: boolean,
   accountHasPasskey: boolean,
   invitationDismissed: boolean,
 ): boolean {
   return supported && !accountHasPasskey && !invitationDismissed;
+}
+
+/**
+ * Formats a passkey timestamp for display. Returns an em dash for an absent or
+ * malformed value: `Intl.DateTimeFormat` throws a RangeError on an invalid date
+ * rather than degrading, which would take the whole row down.
+ *
+ * `locale` and `timeZone` are injectable so the output can be asserted without
+ * depending on the host machine's settings.
+ */
+export function passkeyDate(
+  value: string | null | undefined,
+  locale?: string,
+  timeZone?: string,
+): string {
+  if (!value) return '—';
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return '—';
+
+  return new Intl.DateTimeFormat(locale, {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    ...(timeZone ? { timeZone } : {}),
+  }).format(parsed);
+}
+
+export function passkeyUsage(
+  lastUsedAt: string | null | undefined,
+  locale?: string,
+  timeZone?: string,
+): string {
+  const formatted = passkeyDate(lastUsedAt, locale, timeZone);
+  return formatted === '—' ? 'Never used' : `Used ${formatted}`;
 }

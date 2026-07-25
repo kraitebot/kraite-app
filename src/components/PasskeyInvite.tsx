@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import { useAuth } from '../auth/AuthContext';
 import { registerPasskey } from '../auth/passkeys';
+import { FaceIdIcon } from './FaceIdIcon';
 import { isPasskeyCancellation, passkeyErrorMessage } from '../auth/passkeyPresentation';
 import { useTheme } from '../theme/ThemeContext';
 import { fonts, radius, spacing } from '../theme/tokens';
@@ -38,7 +39,7 @@ export function PasskeyInvite() {
       <View style={styles.layer}>
         <View style={[styles.card, { backgroundColor: palette.panel, borderColor: palette.lineStrong }]}>
           <View style={[styles.icon, { backgroundColor: palette.greenSoft }]}>
-            <Ionicons name="finger-print-outline" size={34} color={palette.green} />
+            <FaceIdIcon size={34} color={palette.green} />
           </View>
           <Text style={[styles.eyebrow, { color: palette.green }]}>FASTER · PASSWORDLESS</Text>
           <Text style={[styles.title, { color: palette.text }]}>Use Face ID next time</Text>
