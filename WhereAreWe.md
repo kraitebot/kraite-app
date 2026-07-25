@@ -1,4 +1,4 @@
-# WhereAreWe — 2026-07-24
+# WhereAreWe — 2026-07-25
 
 ## Current state
 
@@ -23,6 +23,8 @@ refresh, and matched light and dark themes.
 - Projections has Daily profit and Year by year sub-tabs. It matches admin's
   realized/projected calendar, five-year combined portfolio outlook, observed
   pessimistic/neutral/optimistic paths, and profit-funded milestone simulation.
+- Daily calendar P&L values use enlarged, centered typography with a readable
+  fit floor for dense amounts.
 - Accounts, Billing, and Profile remain later product slices.
 - Premium Kraite-specific UI using the website logo, brand colours, and matched
   light/dark themes, informed by strong crypto and forex mobile products.

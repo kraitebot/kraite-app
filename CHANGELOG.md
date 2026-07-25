@@ -2,6 +2,17 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.2.1] — 2026-07-25
+
+### Projection calendar readability
+
+- [IMPROVED] Daily calendar P&L values are larger, centered, and retain a
+  readable minimum size when longer amounts must fit inside a day.
+- [VERIFIED] Type checking, targeted projection tests, Expo Doctor, iOS export,
+  and the signed physical-iPhone build pass.
+- [SKIPPED] The complete suite was intentionally omitted by the light-release
+  policy after targeted coverage passed.
+
 ## [0.2.0] — 2026-07-24
 
 ### Position history and projections

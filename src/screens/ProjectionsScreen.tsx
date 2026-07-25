@@ -265,7 +265,12 @@ function DailyCalendar({ calendar, scenario, onShift }: {
                 <Text style={[styles.dayNumber, { color: isToday ? palette.green : palette.textSoft }]}>{day.day}</Text>
                 {isProjected ? <View style={[styles.projectedDot, { backgroundColor: scenarioTone }]} /> : null}
               </View>
-              <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.dayAmount, { color: amountColor }]}>
+              <Text
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.82}
+                style={[styles.dayAmount, { color: amountColor }]}
+              >
                 {showAmount ? projectionCompactMoney(day.amount) : ''}
               </Text>
             </View>
@@ -776,11 +781,11 @@ const styles = StyleSheet.create({
   weekday: { width: '14.2857%', textAlign: 'center', fontFamily: fonts.monoBold, fontSize: 8.5 },
   dayGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 7, paddingBottom: 7 },
   dayCell: { width: '14.2857%', height: 58 },
-  dayCellFilled: { borderWidth: StyleSheet.hairlineWidth, borderRadius: 9, paddingHorizontal: 4, paddingVertical: 5, justifyContent: 'space-between' },
+  dayCellFilled: { borderWidth: StyleSheet.hairlineWidth, borderRadius: 9, paddingHorizontal: 2, paddingVertical: 5, justifyContent: 'space-between' },
   dayNumberRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   dayNumber: { fontFamily: fonts.monoBold, fontSize: 8.5 },
   projectedDot: { width: 3.5, height: 3.5, borderRadius: 2 },
-  dayAmount: { width: '100%', fontFamily: fonts.monoBold, fontSize: 8.2, letterSpacing: -0.35 },
+  dayAmount: { width: '100%', textAlign: 'center', fontFamily: fonts.monoBold, fontSize: 11, letterSpacing: -0.45 },
   calendarLegend: { minHeight: 46, borderTopWidth: StyleSheet.hairlineWidth, paddingHorizontal: spacing(1.5), flexDirection: 'row', alignItems: 'center', gap: spacing(1.25) },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   legendDot: { width: 6, height: 6, borderRadius: 3 },
