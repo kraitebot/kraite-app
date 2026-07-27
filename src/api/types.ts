@@ -98,6 +98,16 @@ export type BscsSummary = {
   score: number | null;
   band: 'calm' | 'elevated' | 'fragile' | 'critical' | null;
   blocked: boolean;
+  /**
+   * Pause surface across all three sources: 'shock' (fast 1-minute
+   * breaker), 'regime' (slow score gate), 'monitor' (error-storm latch —
+   * holds until an operator clears it, so it carries no until-time).
+   * Optional: an older server omits them; fall back to `blocked`.
+   */
+  paused?: boolean;
+  pause_reason?: 'shock' | 'regime' | 'monitor' | null;
+  cooldown_remaining?: string | null;
+  cooldown_until?: string | null;
   status: string;
   is_stale: boolean;
   block_threshold: number;

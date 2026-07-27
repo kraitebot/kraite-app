@@ -26,7 +26,7 @@ import { AccountPicker } from '../components/AccountPicker';
 import { PositionCard } from '../components/PositionCard';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { NoticeOverlay } from '../components/ScreenState';
-import { formatBscsPositionCap } from '../dashboard/bscsPresentation';
+import { formatBscsPauseLine, formatBscsPositionCap } from '../dashboard/bscsPresentation';
 import { money, percent } from '../dashboard/formatters';
 import { lastPositionClosedLabel } from '../dashboard/positionTimeline';
 import { ACCOUNT_KEY, AUTO_REFRESH_KEY } from '../dashboard/preferences';
@@ -134,6 +134,7 @@ function BscsKpi({ bscs }: { bscs: BscsSummary }) {
         : palette.panelStrong;
   const band = bscs.band?.toUpperCase() ?? 'AWAITING DATA';
   const positionCap = formatBscsPositionCap(bscs.position_cap);
+  const pauseLine = formatBscsPauseLine(bscs);
 
   return (
     <View style={[styles.bscsKpi, { backgroundColor: palette.panel, borderColor: bscs.blocked ? palette.red : palette.line }]}>
@@ -154,7 +155,8 @@ function BscsKpi({ bscs }: { bscs: BscsSummary }) {
         </View>
       </View>
 
-      <Text style={[styles.bscsStatus, { color: bscs.blocked ? palette.red : palette.text }]}>{bscs.status}</Text>
+      <Text style={[styles.bscsStatus, { color: (bscs.paused ?? bscs.blocked) ? palette.red : palette.text }]}>{bscs.status}</Text>
+      {pauseLine ? <Text style={[styles.bscsPauseLine, { color: palette.red }]}>{pauseLine}</Text> : null}
       {positionCap ? <Text style={[styles.bscsPositionCap, { color: palette.textSoft }]}>POSITION CAP · {positionCap}</Text> : null}
 
       <View style={styles.bscsScale}>
@@ -393,6 +395,7 @@ const styles = StyleSheet.create({
   bscsScore: { fontFamily: fonts.monoBold, fontSize: 31, lineHeight: 36, letterSpacing: -1.4 },
   bscsScoreUnit: { fontFamily: fonts.monoBold, fontSize: 10, lineHeight: 13 },
   bscsStatus: { fontFamily: fonts.medium, fontSize: 13, lineHeight: 18, marginTop: spacing(1) },
+  bscsPauseLine: { fontFamily: fonts.monoBold, fontSize: 9, lineHeight: 13, letterSpacing: 0.35, marginTop: 4 },
   bscsPositionCap: { fontFamily: fonts.monoBold, fontSize: 9, lineHeight: 13, letterSpacing: 0.35, marginTop: 4 },
   bscsScale: { height: 9, borderRadius: radius.pill, overflow: 'hidden', position: 'relative', marginTop: spacing(1.25) },
   bscsUnreached: { position: 'absolute', top: 0, right: 0, bottom: 0, opacity: 0.88 },

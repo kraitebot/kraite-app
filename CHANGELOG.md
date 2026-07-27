@@ -2,6 +2,20 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.5.0] — 2026-07-27
+
+### The market-regime tile now tells you when openings are paused — and until when
+
+- [NEW FEATURE] A red line under the regime status names the pause source:
+  "market shock breaker — resumes in 43m", "black-swan score gate" with its
+  countdown, or "error-storm monitor — holds until cleared". Until now the
+  phone had no pause information at all: during the 2026-07-27 event, openings
+  sat parked for four hours with the tile reading calm.
+- [UNCHANGED] Older servers without the new fields degrade gracefully to the
+  previous blocked-only display.
+- [VERIFIED] Type checking, 38 unit tests (5 new pause-line cases), and Expo
+  Doctor pass.
+
 ## [0.4.1] — 2026-07-25
 
 ### One shared screen header
