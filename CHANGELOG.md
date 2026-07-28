@@ -2,6 +2,14 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.7.1] — 2026-07-28
+
+### Correct version label on the installed app
+
+- [FIXED] The iPhone build now reports its real release version (0.7.1,
+  build 8) instead of the stale 0.4.1 label carried since the native project
+  was created.
+
 ## [0.7.0] — 2026-07-28
 
 ### The regime tile is easier to read — and folds away when you're done
