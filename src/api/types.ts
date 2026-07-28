@@ -94,6 +94,19 @@ export type DashboardKpis = {
   short_count: number;
 };
 
+/**
+ * One of the five warning signals behind the score. `value` sits on the
+ * signal's own scale (ratios, a correlation, a signed percentage), so the
+ * tile shows the raw figure and the fired state rather than normalising
+ * them into one bar. Null value means the signal had no reading.
+ */
+export type BscsComponent = {
+  key: string;
+  label: string;
+  value: number | null;
+  fired: boolean;
+};
+
 export type BscsSummary = {
   score: number | null;
   band: 'calm' | 'elevated' | 'fragile' | 'critical' | null;
@@ -112,11 +125,18 @@ export type BscsSummary = {
   is_stale: boolean;
   block_threshold: number;
   computed_ago: string | null;
+  /**
+   * Countdown to the next hourly score recompute ("in 37m" / "about now").
+   * Optional: an older server omits it and the tile drops the promise.
+   */
+  next_compute_in?: string | null;
   position_cap?: {
     long: { effective: number; maximum: number };
     short: { effective: number; maximum: number };
     ratio_percent: number;
   };
+  /** Empty before the first compute; absent on an older server. */
+  components?: BscsComponent[];
 };
 
 export type PositionTrack = {

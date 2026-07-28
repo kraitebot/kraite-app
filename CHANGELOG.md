@@ -2,6 +2,29 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.6.0] — 2026-07-28
+
+### The regime tile now explains itself — and promises the next market check
+
+- [IMPROVED] The status line is a plain-English story per situation: the
+  sudden-drop safety brake, the market-stress score gate, or the exchange
+  error-storm pause — each adds that open positions keep managing themselves,
+  and the calm/elevated/fragile/critical bands say what the engine actually
+  does (fewer trades, reduced leverage, half the usual slots, most defensive).
+- [IMPROVED] The red pause line now leads with when trading resumes:
+  "NEW TRADES RESUME · in 43m", or "once the exchange connection is healthy
+  again" for the monitor latch that carries no countdown.
+- [NEW FEATURE] A cadence line shows when the market was last checked and a
+  countdown to the next hourly assessment ("MARKET CHECKED 12m ago · NEXT in
+  37m"), served pre-phrased by the API.
+- [NEW FEATURE] The five warning signals unfold on the tile whenever the
+  market leaves Calm or openings are paused; tapping one opens a plain-English
+  explanation sheet with the current reading and fired state.
+- [UNCHANGED] Older servers without the new countdown field degrade
+  gracefully — the tile keeps only what it can prove.
+- [VERIFIED] Type checking, 53 unit tests, Expo Doctor (20/20), and the iOS
+  export pass.
+
 ## [0.5.0] — 2026-07-27
 
 ### The market-regime tile now tells you when openings are paused — and until when

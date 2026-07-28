@@ -1,6 +1,6 @@
 {
   "name": "kraite-mobile",
-  "version": "0.4.1",
+  "version": "0.6.0",
   "main": "index.ts",
   "private": true,
   "scripts": {

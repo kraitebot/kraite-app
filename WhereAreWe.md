@@ -1,4 +1,4 @@
-# WhereAreWe — 2026-07-25
+# WhereAreWe — 2026-07-28
 
 ## Current state
 
@@ -18,6 +18,14 @@ and dark themes.
 - Native open-position tiles based on the trader dashboard information.
 - Auto-refresh toggle enabled by default, polling every 10 seconds only while
   the app is active. No background polling.
+- The market-regime tile narrates its state in plain English: each pause
+  source tells its own story (sudden-drop shock brake, market-stress score
+  gate, exchange error-storm latch), a resume line carries the cooldown
+  countdown or points at connection health for the latch, and a cadence line
+  shows when the market was last checked plus a countdown to the next hourly
+  assessment (served pre-phrased by the API). The five-sub-signal breakdown
+  unfolds off-Calm or while paused, and each row opens a plain-English
+  explanation sheet.
 - Positions is completed history, not the currently open dashboard set.
   It provides owner-scoped account selection, realized summary, LONG/SHORT
   filters, expandable trade details, and cursor-based older-history loading.

@@ -20,13 +20,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, LinearGradient as SvgLinearGradient, Line, Path, Stop } from 'react-native-svg';
 
 import { api, ApiError } from '../api/client';
-import { Account, BscsSummary, Dashboard, DashboardKpis, DashboardResponse } from '../api/types';
+import { Account, BscsComponent, BscsSummary, Dashboard, DashboardKpis, DashboardResponse } from '../api/types';
 import { useAuth } from '../auth/AuthContext';
 import { AccountPicker } from '../components/AccountPicker';
+import { BscsSignalSheet } from '../components/BscsSignalSheet';
 import { PositionCard } from '../components/PositionCard';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { NoticeOverlay } from '../components/ScreenState';
-import { formatBscsPauseLine, formatBscsPositionCap } from '../dashboard/bscsPresentation';
+import { bscsNarrative, formatBscsCadenceLine, formatBscsComponentValue, formatBscsPauseLine, formatBscsPositionCap, visibleBscsComponents } from '../dashboard/bscsPresentation';
 import { money, percent } from '../dashboard/formatters';
 import { lastPositionClosedLabel } from '../dashboard/positionTimeline';
 import { ACCOUNT_KEY, AUTO_REFRESH_KEY } from '../dashboard/preferences';
@@ -134,7 +135,11 @@ function BscsKpi({ bscs }: { bscs: BscsSummary }) {
         : palette.panelStrong;
   const band = bscs.band?.toUpperCase() ?? 'AWAITING DATA';
   const positionCap = formatBscsPositionCap(bscs.position_cap);
+  const narrative = bscsNarrative(bscs);
   const pauseLine = formatBscsPauseLine(bscs);
+  const cadenceLine = formatBscsCadenceLine(bscs);
+  const components = visibleBscsComponents(bscs);
+  const [openSignal, setOpenSignal] = useState<BscsComponent | null>(null);
 
   return (
     <View style={[styles.bscsKpi, { backgroundColor: palette.panel, borderColor: bscs.blocked ? palette.red : palette.line }]}>
@@ -155,8 +160,9 @@ function BscsKpi({ bscs }: { bscs: BscsSummary }) {
         </View>
       </View>
 
-      <Text style={[styles.bscsStatus, { color: (bscs.paused ?? bscs.blocked) ? palette.red : palette.text }]}>{bscs.status}</Text>
+      <Text style={[styles.bscsStatus, { color: (bscs.paused ?? bscs.blocked) ? palette.red : palette.text }]}>{narrative}</Text>
       {pauseLine ? <Text style={[styles.bscsPauseLine, { color: palette.red }]}>{pauseLine}</Text> : null}
+      {cadenceLine ? <Text style={[styles.bscsPositionCap, { color: palette.textSoft }]}>{cadenceLine}</Text> : null}
       {positionCap ? <Text style={[styles.bscsPositionCap, { color: palette.textSoft }]}>POSITION CAP · {positionCap}</Text> : null}
 
       <View style={styles.bscsScale}>
@@ -177,6 +183,34 @@ function BscsKpi({ bscs }: { bscs: BscsSummary }) {
         <Text style={[styles.bscsScaleLabel, { color: palette.textSoft }]}>FRAGILE</Text>
         <Text style={[styles.bscsScaleLabel, styles.bscsCriticalLabel, { color: palette.textSoft }]}>CRITICAL</Text>
       </View>
+
+      {components.length > 0 ? (
+        <View style={[styles.bscsSignals, { borderTopColor: palette.line }]}>
+          <Text style={[styles.bscsSignalsEyebrow, { color: palette.textSoft }]}>WARNING SIGNALS · TAP FOR DETAIL</Text>
+          {components.map((component) => (
+            <Pressable
+              key={component.key}
+              onPress={() => setOpenSignal(component)}
+              accessibilityRole="button"
+              accessibilityLabel={`${component.label}, ${formatBscsComponentValue(component.value)}, ${component.fired ? 'fired' : 'quiet'}`}
+              style={styles.bscsSignalRow}
+            >
+              <Text style={[styles.bscsSignalLabel, { color: palette.text }]} numberOfLines={1}>{component.label}</Text>
+              <Ionicons name="information-circle-outline" size={14} color={palette.textFaint} />
+              <Text style={[styles.bscsSignalValue, { color: component.fired ? palette.text : palette.textSoft }]}>
+                {formatBscsComponentValue(component.value)}
+              </Text>
+              <View style={[styles.bscsSignalChip, { backgroundColor: component.fired ? palette.amberSoft : palette.panelStrong }]}>
+                <Text style={[styles.bscsSignalChipText, { color: component.fired ? palette.amber : palette.textFaint }]}>
+                  {component.fired ? 'FIRED' : 'QUIET'}
+                </Text>
+              </View>
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
+
+      <BscsSignalSheet signal={openSignal} onClose={() => setOpenSignal(null)} />
     </View>
   );
 }
@@ -405,6 +439,13 @@ const styles = StyleSheet.create({
   bscsScaleLabel: { flex: 1, fontFamily: fonts.monoBold, fontSize: 7.5, lineHeight: 10, letterSpacing: 0.35, textAlign: 'center' },
   bscsCalmLabel: { flex: 2, textAlign: 'left' },
   bscsCriticalLabel: { textAlign: 'right' },
+  bscsSignals: { marginTop: spacing(1.5), paddingTop: spacing(1.25), borderTopWidth: 1, gap: spacing(0.75) },
+  bscsSignalsEyebrow: { fontFamily: fonts.monoBold, fontSize: 8.5, lineHeight: 11, letterSpacing: 1 },
+  bscsSignalRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 3 },
+  bscsSignalLabel: { fontFamily: fonts.regular, fontSize: 12.5, lineHeight: 17, flexShrink: 1 },
+  bscsSignalValue: { fontFamily: fonts.monoBold, fontSize: 11.5, lineHeight: 15, marginLeft: 'auto' },
+  bscsSignalChip: { borderRadius: radius.pill, paddingHorizontal: 7, paddingVertical: 3, width: 54, alignItems: 'center' },
+  bscsSignalChipText: { fontFamily: fonts.monoBold, fontSize: 8, lineHeight: 10, letterSpacing: 0.8 },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing(1.5) },
   sectionTitle: { fontFamily: fonts.display, fontSize: 23, letterSpacing: -0.7 },
   sectionCopy: { fontFamily: fonts.regular, fontSize: 12.5, marginTop: 3 },
