@@ -2,6 +2,19 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.7.0] — 2026-07-28
+
+### The regime tile is easier to read — and folds away when you're done
+
+- [IMPROVED] Every small label on the market-regime tile got a size bump: the
+  story text, pause/resume line, cadence and cap lines, scale labels, and the
+  warning-signal rows are all noticeably more legible.
+- [NEW FEATURE] The tile is now collapsible, matching the position cards: tap
+  the header to fold it down to the band, score, plain-English story, and the
+  resume line when trading is paused. Expanding reveals the cadence line,
+  position caps, the Calm→Critical scale, and the warning signals.
+- [VERIFIED] Type checking and 53 unit tests pass.
+
 ## [0.6.0] — 2026-07-28
 
 ### The regime tile now explains itself — and promises the next market check

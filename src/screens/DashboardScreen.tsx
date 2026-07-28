@@ -6,8 +6,10 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   AccessibilityInfo,
   ActivityIndicator,
+  Animated,
   AppState,
   AppStateStatus,
+  LayoutAnimation,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -115,8 +117,10 @@ function OpenPositionsKpi({ kpis }: { kpis: DashboardKpis }) {
   );
 }
 
-function BscsKpi({ bscs }: { bscs: BscsSummary }) {
+function BscsKpi({ bscs, reduceMotion }: { bscs: BscsSummary; reduceMotion: boolean }) {
   const { palette } = useTheme();
+  const [expanded, setExpanded] = useState(false);
+  const chevronProgress = useRef(new Animated.Value(0)).current;
   const score = bscs.score === null ? null : Math.max(0, Math.min(100, bscs.score));
   const threshold = Math.max(0, Math.min(100, bscs.block_threshold));
   const tone = bscs.blocked || bscs.band === 'critical'
@@ -141,9 +145,32 @@ function BscsKpi({ bscs }: { bscs: BscsSummary }) {
   const components = visibleBscsComponents(bscs);
   const [openSignal, setOpenSignal] = useState<BscsComponent | null>(null);
 
+  const toggleExpanded = () => {
+    const next = !expanded;
+    if (!reduceMotion) LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setExpanded(next);
+    Animated.timing(chevronProgress, {
+      toValue: next ? 1 : 0,
+      duration: reduceMotion ? 0 : 180,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const chevronRotation = chevronProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '180deg'],
+  });
+
   return (
     <View style={[styles.bscsKpi, { backgroundColor: palette.panel, borderColor: bscs.blocked ? palette.red : palette.line }]}>
-      <View style={styles.bscsTop}>
+      <Pressable
+        onPress={toggleExpanded}
+        accessibilityRole="button"
+        accessibilityLabel="Market regime details"
+        accessibilityHint={expanded ? 'Collapses the market regime details' : 'Expands the market regime details'}
+        accessibilityState={{ expanded }}
+        style={styles.bscsTop}
+      >
         <View style={[styles.bscsIcon, { backgroundColor: toneSoft }]}>
           <Ionicons name="shield-half-outline" size={23} color={tone} />
         </View>
@@ -158,10 +185,15 @@ function BscsKpi({ bscs }: { bscs: BscsSummary }) {
           <Text style={[styles.bscsScore, { color: tone }]}>{score ?? '—'}</Text>
           <Text style={[styles.bscsScoreUnit, { color: palette.textSoft }]}>/100</Text>
         </View>
-      </View>
+        <View style={[styles.bscsExpandButton, { backgroundColor: palette.panelStrong, borderColor: palette.line }]}>
+          <Animated.View style={{ transform: [{ rotate: chevronRotation }] }}><Ionicons name="chevron-down" size={17} color={tone} /></Animated.View>
+        </View>
+      </Pressable>
 
       <Text style={[styles.bscsStatus, { color: (bscs.paused ?? bscs.blocked) ? palette.red : palette.text }]}>{narrative}</Text>
       {pauseLine ? <Text style={[styles.bscsPauseLine, { color: palette.red }]}>{pauseLine}</Text> : null}
+
+      {expanded ? <>
       {cadenceLine ? <Text style={[styles.bscsPositionCap, { color: palette.textSoft }]}>{cadenceLine}</Text> : null}
       {positionCap ? <Text style={[styles.bscsPositionCap, { color: palette.textSoft }]}>POSITION CAP · {positionCap}</Text> : null}
 
@@ -183,8 +215,9 @@ function BscsKpi({ bscs }: { bscs: BscsSummary }) {
         <Text style={[styles.bscsScaleLabel, { color: palette.textSoft }]}>FRAGILE</Text>
         <Text style={[styles.bscsScaleLabel, styles.bscsCriticalLabel, { color: palette.textSoft }]}>CRITICAL</Text>
       </View>
+      </> : null}
 
-      {components.length > 0 ? (
+      {expanded && components.length > 0 ? (
         <View style={[styles.bscsSignals, { borderTopColor: palette.line }]}>
           <Text style={[styles.bscsSignalsEyebrow, { color: palette.textSoft }]}>WARNING SIGNALS · TAP FOR DETAIL</Text>
           {components.map((component) => (
@@ -346,7 +379,7 @@ export function DashboardScreen() {
             <OpenPositionsKpi kpis={kpis} />
           </View>
 
-          {dashboard.bscs ? <BscsKpi bscs={dashboard.bscs} /> : null}
+          {dashboard.bscs ? <BscsKpi bscs={dashboard.bscs} reduceMotion={reduceMotion} /> : null}
 
           <View style={styles.sectionHeader}>
             <View>
@@ -416,36 +449,37 @@ const styles = StyleSheet.create({
   splitShort: { borderRadius: radius.pill },
   splitLegend: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 7 },
   splitText: { fontFamily: fonts.monoBold, fontSize: 10.5 },
-  bscsKpi: { width: '100%', minHeight: 142, borderWidth: 1, borderRadius: radius.card, padding: spacing(1.5) },
+  bscsKpi: { width: '100%', borderWidth: 1, borderRadius: radius.card, padding: spacing(1.5) },
   bscsTop: { flexDirection: 'row', alignItems: 'center', gap: spacing(1.25) },
   bscsIcon: { width: 44, height: 44, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
   bscsCopy: { flex: 1, gap: 4 },
-  bscsEyebrow: { fontFamily: fonts.monoBold, fontSize: 10, lineHeight: 13, letterSpacing: 1.1 },
+  bscsEyebrow: { fontFamily: fonts.monoBold, fontSize: 11, lineHeight: 14, letterSpacing: 1.1 },
   bscsBandRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
-  bscsBand: { fontFamily: fonts.monoBold, fontSize: 15, lineHeight: 19, letterSpacing: 0.5 },
+  bscsBand: { fontFamily: fonts.monoBold, fontSize: 16.5, lineHeight: 21, letterSpacing: 0.5 },
   bscsStaleBadge: { borderRadius: radius.pill, paddingHorizontal: 6, paddingVertical: 3 },
-  bscsStaleText: { fontFamily: fonts.monoBold, fontSize: 8, lineHeight: 10, letterSpacing: 0.8 },
+  bscsStaleText: { fontFamily: fonts.monoBold, fontSize: 9, lineHeight: 11, letterSpacing: 0.8 },
   bscsScoreBlock: { flexDirection: 'row', alignItems: 'baseline' },
   bscsScore: { fontFamily: fonts.monoBold, fontSize: 31, lineHeight: 36, letterSpacing: -1.4 },
-  bscsScoreUnit: { fontFamily: fonts.monoBold, fontSize: 10, lineHeight: 13 },
-  bscsStatus: { fontFamily: fonts.medium, fontSize: 13, lineHeight: 18, marginTop: spacing(1) },
-  bscsPauseLine: { fontFamily: fonts.monoBold, fontSize: 9, lineHeight: 13, letterSpacing: 0.35, marginTop: 4 },
-  bscsPositionCap: { fontFamily: fonts.monoBold, fontSize: 9, lineHeight: 13, letterSpacing: 0.35, marginTop: 4 },
+  bscsScoreUnit: { fontFamily: fonts.monoBold, fontSize: 11, lineHeight: 14 },
+  bscsExpandButton: { width: 36, height: 36, borderWidth: 1, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  bscsStatus: { fontFamily: fonts.medium, fontSize: 14.5, lineHeight: 20, marginTop: spacing(1) },
+  bscsPauseLine: { fontFamily: fonts.monoBold, fontSize: 10.5, lineHeight: 14, letterSpacing: 0.35, marginTop: 4 },
+  bscsPositionCap: { fontFamily: fonts.monoBold, fontSize: 10.5, lineHeight: 14, letterSpacing: 0.35, marginTop: 4 },
   bscsScale: { height: 9, borderRadius: radius.pill, overflow: 'hidden', position: 'relative', marginTop: spacing(1.25) },
   bscsUnreached: { position: 'absolute', top: 0, right: 0, bottom: 0, opacity: 0.88 },
   bscsThreshold: { position: 'absolute', top: -2, bottom: -2, width: 1, opacity: 0.9 },
   bscsMarker: { position: 'absolute', top: -2, width: 4, height: 13, borderRadius: 2, marginLeft: -2 },
   bscsScaleLabels: { flexDirection: 'row', marginTop: 6 },
-  bscsScaleLabel: { flex: 1, fontFamily: fonts.monoBold, fontSize: 7.5, lineHeight: 10, letterSpacing: 0.35, textAlign: 'center' },
+  bscsScaleLabel: { flex: 1, fontFamily: fonts.monoBold, fontSize: 8.5, lineHeight: 11, letterSpacing: 0.35, textAlign: 'center' },
   bscsCalmLabel: { flex: 2, textAlign: 'left' },
   bscsCriticalLabel: { textAlign: 'right' },
   bscsSignals: { marginTop: spacing(1.5), paddingTop: spacing(1.25), borderTopWidth: 1, gap: spacing(0.75) },
-  bscsSignalsEyebrow: { fontFamily: fonts.monoBold, fontSize: 8.5, lineHeight: 11, letterSpacing: 1 },
+  bscsSignalsEyebrow: { fontFamily: fonts.monoBold, fontSize: 9.5, lineHeight: 12, letterSpacing: 1 },
   bscsSignalRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 3 },
-  bscsSignalLabel: { fontFamily: fonts.regular, fontSize: 12.5, lineHeight: 17, flexShrink: 1 },
-  bscsSignalValue: { fontFamily: fonts.monoBold, fontSize: 11.5, lineHeight: 15, marginLeft: 'auto' },
-  bscsSignalChip: { borderRadius: radius.pill, paddingHorizontal: 7, paddingVertical: 3, width: 54, alignItems: 'center' },
-  bscsSignalChipText: { fontFamily: fonts.monoBold, fontSize: 8, lineHeight: 10, letterSpacing: 0.8 },
+  bscsSignalLabel: { fontFamily: fonts.regular, fontSize: 13.5, lineHeight: 18, flexShrink: 1 },
+  bscsSignalValue: { fontFamily: fonts.monoBold, fontSize: 12.5, lineHeight: 16, marginLeft: 'auto' },
+  bscsSignalChip: { borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 3, width: 58, alignItems: 'center' },
+  bscsSignalChipText: { fontFamily: fonts.monoBold, fontSize: 9, lineHeight: 11, letterSpacing: 0.8 },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing(1.5) },
   sectionTitle: { fontFamily: fonts.display, fontSize: 23, letterSpacing: -0.7 },
   sectionCopy: { fontFamily: fonts.regular, fontSize: 12.5, marginTop: 3 },

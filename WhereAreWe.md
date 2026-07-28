@@ -25,7 +25,9 @@ and dark themes.
   shows when the market was last checked plus a countdown to the next hourly
   assessment (served pre-phrased by the API). The five-sub-signal breakdown
   unfolds off-Calm or while paused, and each row opens a plain-English
-  explanation sheet.
+  explanation sheet. The tile itself collapses like the position cards: folded
+  it keeps the band, score, story, and resume line; expanding reveals the
+  cadence, caps, scale, and signals.
 - Positions is completed history, not the currently open dashboard set.
   It provides owner-scoped account selection, realized summary, LONG/SHORT
   filters, expandable trade details, and cursor-based older-history loading.
