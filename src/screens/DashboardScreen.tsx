@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   AccessibilityInfo,
   ActivityIndicator,
+  Alert,
   Animated,
   AppState,
   AppStateStatus,
@@ -22,7 +23,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, LinearGradient as SvgLinearGradient, Line, Path, Stop } from 'react-native-svg';
 
 import { api, ApiError } from '../api/client';
-import { Account, BscsComponent, BscsSummary, Dashboard, DashboardKpis, DashboardResponse } from '../api/types';
+import { Account, BscsComponent, BscsSummary, Dashboard, DashboardKpis, DashboardResponse, DayBasisHint } from '../api/types';
 import { useAuth } from '../auth/AuthContext';
 import { AccountPicker } from '../components/AccountPicker';
 import { BscsSignalSheet } from '../components/BscsSignalSheet';
@@ -265,6 +266,40 @@ export function DashboardScreen() {
   const [reduceMotion, setReduceMotion] = useState(false);
   const requestId = useRef(0);
 
+  // The trader turned up somewhere new. Offer the matching day basis once —
+  // never switch on our own, because the basis is set to match their exchange
+  // and that setting does not travel with them.
+  const offeredCountry = useRef<string | null>(null);
+  const offerDayBasisSwitch = useCallback((hint: DayBasisHint | null) => {
+    if (!hint || offeredCountry.current === hint.country_code) return;
+    offeredCountry.current = hint.country_code;
+
+    const answer = async (accept: boolean) => {
+      try {
+        await api.post('/profile/day-basis-hint', {
+          country_code: hint.country_code,
+          accept,
+          utc_offset_minutes: hint.suggested_offset_minutes,
+        });
+        if (accept) await load(null, true);
+      } catch {
+        // Recorded on the next answer; the dialog does not reappear this session.
+      }
+    };
+
+    Alert.alert(
+      `You appear to be in ${hint.country_name}`,
+      `Your trading day starts at ${hint.current_label}, matching your exchange. `
+      + `Local time here is ${hint.suggested_label}.\n\n`
+      + 'Only switch if you also changed the day basis on your exchange, or the two '
+      + 'will disagree about which trades belong to today.',
+      [
+        { text: `Keep ${hint.current_label}`, style: 'cancel', onPress: () => { void answer(false); } },
+        { text: `Switch to ${hint.suggested_label}`, onPress: () => { void answer(true); } },
+      ],
+    );
+  }, []);
+
   const load = useCallback(async (accountId?: number | null, quiet = false) => {
     const id = ++requestId.current;
     if (!quiet) setRefreshing(true);
@@ -276,6 +311,7 @@ export function DashboardScreen() {
       setAccounts(response.data.accounts);
       setSelectedId(response.data.selected_account_id);
       setDashboard(response.data.dashboard);
+      offerDayBasisSwitch(response.data.dashboard?.day_basis_hint ?? null);
       if (response.data.selected_account_id) void SecureStore.setItemAsync(ACCOUNT_KEY, String(response.data.selected_account_id));
     } catch (caught) {
       if (caught instanceof ApiError && caught.status === 401) {

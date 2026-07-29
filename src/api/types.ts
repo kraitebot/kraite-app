@@ -175,9 +175,23 @@ export type Position = {
   timeframe_dots: { timeframe: string; direction: 'up' | 'down' | 'flat' | 'none' }[];
 };
 
+/**
+ * A one-time offer to move the trading day basis after the trader turns up in
+ * a different country. Offered, never applied on our side: the basis is set to
+ * match the trader's exchange, and that setting does not travel with them.
+ */
+export type DayBasisHint = {
+  country_code: string;
+  country_name: string;
+  suggested_offset_minutes: number;
+  suggested_label: string;
+  current_label: string;
+};
+
 export type Dashboard = {
   account: Pick<Account, 'id' | 'name' | 'exchange'>;
   kpis: DashboardKpis;
+  day_basis_hint?: DayBasisHint | null;
   bscs?: BscsSummary;
   last_position_closed_at?: string | null;
   positions: Position[];

@@ -2,6 +2,18 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.9.0] — 2026-07-29
+
+### The trading day can follow you, if you say so
+
+- [NEW] Landing in another country offers to move your trading day to local
+  time — once, with Keep and Switch. It never changes on its own: your
+  trading day is set to match your exchange, and that setting does not travel
+  with you.
+- [IMPROVED] Daily profit figures now come from the exchange's own record of
+  every fee and fill, counted on the day it was charged, so a position held
+  across midnight no longer distorts either day.
+
 ## [0.8.1] — 2026-07-29
 
 ### The installed app reports the release it actually is
