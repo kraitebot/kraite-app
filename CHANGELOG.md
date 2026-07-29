@@ -2,6 +2,15 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.8.1] — 2026-07-29
+
+### The installed app reports the release it actually is
+
+- [FIXED] `app.json` and the native `Info.plist` had drifted apart on the
+  build number (7 against 8), so a release could not say for certain which
+  build a phone was running. Both now move together, and this is the tag
+  installed on the paired iPhone.
+
 ## [0.8.0] — 2026-07-29
 
 ### The calendar states which trading day it is drawn on
