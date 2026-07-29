@@ -33,10 +33,12 @@ import {
   projectionCapitalMilestones,
   projectionCompactMoney,
   projectionDailyRate,
+  projectionDayBasisLabel,
   projectionInvestment,
   projectionMoney,
   projectionMonthLabel,
   projectionMultiple,
+  projectionOpeningMonth,
   projectionPercent,
   projectionScenarioLabel,
   shiftProjectionMonth,
@@ -536,6 +538,7 @@ export function ProjectionsScreen() {
   const [error, setError] = useState<string | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const requestId = useRef(0);
+  const anchoredToTraderMonth = useRef(false);
 
   const load = useCallback(async (
     accountId: number | null,
@@ -560,6 +563,18 @@ export function ProjectionsScreen() {
       setYearly(response.data.yearly);
       if (response.data.calendar) {
         setViewed({ year: response.data.calendar.year, month: response.data.calendar.month });
+        // First load opens on the server's idea of the trader's today. The
+        // device clock can sit a day either side of it when their exchange
+        // rolls the day at a different hour than UTC.
+        if (!anchoredToTraderMonth.current) {
+          anchoredToTraderMonth.current = true;
+          const opening = projectionOpeningMonth(response.data.calendar);
+          if (opening.year !== response.data.calendar.year || opening.month !== response.data.calendar.month) {
+            setViewed(opening);
+            void load(response.data.selected_account_id, opening.year, opening.month, refresh);
+            return;
+          }
+        }
       }
       if (response.data.selected_account_id) {
         void SecureStore.setItemAsync(ACCOUNT_KEY, String(response.data.selected_account_id));
@@ -650,7 +665,9 @@ export function ProjectionsScreen() {
           >
             <View style={[styles.accountSignal, { backgroundColor: selectedAccount?.is_trading ? palette.green : palette.amber }]} />
             <View style={styles.selectorCopy}>
-              <Text style={[styles.selectorLabel, { color: palette.textFaint }]}>DAILY PROFIT CALENDAR</Text>
+              <Text style={[styles.selectorLabel, { color: palette.textFaint }]}>
+                {calendar ? `DAILY PROFIT CALENDAR · ${projectionDayBasisLabel(calendar)}` : 'DAILY PROFIT CALENDAR'}
+              </Text>
               <Text style={[styles.selectorValue, { color: palette.text }]}>
                 {selectedAccount ? `${selectedAccount.name} · ${selectedAccount.exchange}` : 'No trading account'}
               </Text>

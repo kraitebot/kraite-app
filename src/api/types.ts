@@ -266,7 +266,12 @@ export type ProjectionCalendar = {
   month_start_wallet: string | null;
   scenarios: ProjectionScenarioRates;
   investment_basis: ProjectionInvestmentBasis;
+  /** The trader's current date on their own day basis, not the device's. */
   today: string;
+  /** Minutes from UTC at which their trading day rolls over. */
+  utc_offset_minutes?: number;
+  /** That basis in the wording exchanges use, e.g. `UTC+02:00`. */
+  day_basis_label?: string;
 };
 
 export type ProjectionMilestone = {

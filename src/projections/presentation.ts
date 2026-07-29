@@ -86,6 +86,28 @@ export function projectionMonthLabel(year: number, month: number): string {
   return `${MONTHS[month - 1] ?? 'Unknown'} ${year}`;
 }
 
+/**
+ * The trading day basis these figures are counted on, in the exchange's own
+ * wording. An older API that predates the setting reported UTC days, so that
+ * is what a missing value means.
+ */
+export function projectionDayBasisLabel(calendar: ProjectionCalendar): string {
+  return calendar.day_basis_label ?? 'UTC+00:00';
+}
+
+/**
+ * The month to open the calendar on — derived from the server's idea of the
+ * trader's today, never the device clock. At 23:38 UTC on 31 July a UTC+2
+ * trader is already in August, and the phone's own clock would disagree.
+ */
+export function projectionOpeningMonth(
+  calendar: ProjectionCalendar,
+): { year: number; month: number } {
+  const [year, month] = calendar.today.split('-').map(Number);
+
+  return { year: year!, month: month! };
+}
+
 export function shiftProjectionMonth(
   year: number,
   month: number,

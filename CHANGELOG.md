@@ -2,6 +2,18 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.8.0] — 2026-07-29
+
+### The calendar states which trading day it is drawn on
+
+- [NEW] The daily profit calendar names the trading day basis its figures
+  are counted on (for example `UTC+02:00`), the same basis set on the
+  trader's profile and on their exchange.
+- [FIXED] The calendar opens on the month the trader is actually in rather
+  than the month the handset's clock is in. A trader whose day rolls at
+  UTC+2 could be a day — and at month's end a whole month — ahead of the
+  device's own reckoning.
+
 ## [0.7.1] — 2026-07-28
 
 ### Correct version label on the installed app

@@ -6,6 +6,8 @@ import {
   projectionCapitalMilestones,
   projectionCompactMoney,
   projectionDailyRate,
+  projectionDayBasisLabel,
+  projectionOpeningMonth,
   projectionInvestment,
   projectionMoney,
   projectionMonthLabel,
@@ -114,4 +116,28 @@ test('marks profit funding reached and keeps missing wallet history unavailable'
   assert.equal(projectionCapitalMilestones(reached, '')[1].state, 'reached');
   assert.equal(projectionInvestment(missing, '500').available, false);
   assert.equal(projectionCapitalMilestones(missing, '500')[1].detail, 'No wallet history');
+});
+
+test('states the trading day basis the figures are counted on', () => {
+  // The phone must not imply a UTC day when the trader's exchange rolls at
+  // UTC+2 — Bruno's Binance day starts two hours before midnight UTC.
+  assert.equal(projectionDayBasisLabel({ ...calendar, day_basis_label: 'UTC+02:00' }), 'UTC+02:00');
+  assert.equal(projectionDayBasisLabel({ ...calendar, day_basis_label: 'UTC+00:00' }), 'UTC+00:00');
+});
+
+test('falls back to UTC wording when an older API omits the basis', () => {
+  assert.equal(projectionDayBasisLabel(calendar), 'UTC+00:00');
+});
+
+test('opens the calendar on the month the trader is actually in', () => {
+  // 23:38 UTC on 31 July is already 1 August for a UTC+2 trader, so the
+  // device clock alone would open the wrong month.
+  assert.deepEqual(
+    projectionOpeningMonth({ ...calendar, today: '2026-08-01' }),
+    { year: 2026, month: 8 },
+  );
+  assert.deepEqual(
+    projectionOpeningMonth(calendar),
+    { year: 2026, month: 7 },
+  );
 });
