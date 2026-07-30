@@ -21,10 +21,13 @@ import { AuthProvider, useAuth } from './src/auth/AuthContext';
 import { PasskeyInvite } from './src/components/PasskeyInvite';
 import { LoadingScreen } from './src/components/ScreenState';
 import { RootStackParamList, TabParamList } from './src/navigation/types';
+import { flushPendingDashboardNavigation, navigationRef } from './src/navigation/navigationRef';
+import { NotificationProvider, useNotifications } from './src/notifications/NotificationContext';
 import { DashboardScreen } from './src/screens/DashboardScreen';
 import { AccountsScreen } from './src/screens/AccountsScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { MoreScreen } from './src/screens/MoreScreen';
+import { NotificationsScreen } from './src/screens/NotificationsScreen';
 import { ProfileScreen } from './src/screens/ProfileScreen';
 import { PositionsScreen } from './src/screens/PositionsScreen';
 import { ProjectionsScreen } from './src/screens/ProjectionsScreen';
@@ -47,6 +50,7 @@ const tabIcons: Record<keyof TabParamList, keyof typeof Ionicons.glyphMap> = {
 function Tabs() {
   const { palette } = useTheme();
   const { runTransition } = useScreenTransition();
+  const { unreadCount } = useNotifications();
   return (
     <Tab.Navigator
       screenListeners={({ navigation, route }) => ({
@@ -72,6 +76,8 @@ function Tabs() {
           borderTopWidth: StyleSheet.hairlineWidth,
         },
         tabBarLabelStyle: { fontFamily: fonts.monoBold, fontSize: 8, letterSpacing: 0.15 },
+        tabBarBadge: route.name === 'More' && unreadCount > 0 ? (unreadCount > 99 ? '99+' : unreadCount) : undefined,
+        tabBarBadgeStyle: { backgroundColor: palette.red, color: '#FFFFFF', fontFamily: fonts.monoBold, fontSize: 8 },
         tabBarIcon: ({ focused, color }) => (
           <View style={[styles.tabIcon, focused && { backgroundColor: palette.greenSoft }]}>
             <Ionicons name={tabIcons[route.name]} size={21} color={color} />
@@ -110,10 +116,11 @@ function RootNavigation() {
   };
 
   return <>
-    <NavigationContainer theme={navigationTheme}>
+    <NavigationContainer ref={navigationRef} theme={navigationTheme} onReady={flushPendingDashboardNavigation}>
       <Stack.Navigator screenOptions={{ headerShown: false, animation: 'none', gestureEnabled: false, contentStyle: { backgroundColor: palette.canvas } }}>
         <Stack.Screen name="Tabs" component={Tabs} />
         <Stack.Screen name="Billing" component={StackPlaceholder} />
+        <Stack.Screen name="Notifications" component={NotificationsScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
       </Stack.Navigator>
     </NavigationContainer>
@@ -125,8 +132,10 @@ function KraiteApp() {
   const { palette } = useTheme();
   return (
     <AuthProvider>
-      <StatusBar style={palette.dark ? 'light' : 'dark'} />
-      <RootNavigation />
+      <NotificationProvider>
+        <StatusBar style={palette.dark ? 'light' : 'dark'} />
+        <RootNavigation />
+      </NotificationProvider>
     </AuthProvider>
   );
 }

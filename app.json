@@ -2,7 +2,7 @@
   "expo": {
     "name": "Kraite",
     "slug": "kraite",
-    "version": "0.9.0",
+    "version": "0.10.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -10,7 +10,7 @@
     "scheme": "kraite",
     "ios": {
       "supportsTablet": false,
-      "buildNumber": "11",
+      "buildNumber": "12",
       "appleTeamId": "FWCW3LG29Y",
       "bundleIdentifier": "com.kraite.app",
       "associatedDomains": [
@@ -38,6 +38,7 @@
     },
     "plugins": [
       "expo-font",
+      "expo-notifications",
       "expo-secure-store",
       "expo-status-bar"
     ],

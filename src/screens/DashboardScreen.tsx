@@ -35,6 +35,8 @@ import { money, percent } from '../dashboard/formatters';
 import { lastPositionClosedLabel } from '../dashboard/positionTimeline';
 import { ACCOUNT_KEY, AUTO_REFRESH_KEY } from '../dashboard/preferences';
 import { shouldAutoRefresh } from '../dashboard/refreshPolicy';
+import { useNotifications } from '../notifications/NotificationContext';
+import { notificationTone } from '../notifications/notificationState';
 import { useTheme } from '../theme/ThemeContext';
 import { fonts, radius, spacing } from '../theme/tokens';
 
@@ -252,6 +254,7 @@ function BscsKpi({ bscs, reduceMotion }: { bscs: BscsSummary; reduceMotion: bool
 export function DashboardScreen() {
   const { palette } = useTheme();
   const { expireSession } = useAuth();
+  const { overlay, dismissOverlay, markVisible } = useNotifications();
   const insets = useSafeAreaInsets();
   const isFocused = useIsFocused();
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -380,6 +383,10 @@ export function DashboardScreen() {
   const todayRed = Number(kpis?.pnl_today ?? 0) < 0;
   const monthRed = Number(kpis?.pnl_30d ?? 0) < 0;
 
+  useEffect(() => {
+    if (isFocused && overlay) markVisible([overlay.id]);
+  }, [isFocused, markVisible, overlay]);
+
   return (
     <View style={[styles.screen, { backgroundColor: palette.canvas, paddingTop: insets.top }]}>
       <ScrollView
@@ -436,7 +443,15 @@ export function DashboardScreen() {
         </> : null}
       </ScrollView>
 
-      {error ? <NoticeOverlay
+      {overlay ? <NoticeOverlay
+        tone={notificationTone(overlay.severity)}
+        title={overlay.title}
+        message={overlay.body}
+        icon="notifications-outline"
+        onDismiss={dismissOverlay}
+      /> : null}
+
+      {error && !overlay ? <NoticeOverlay
         tone="error"
         title="Signal interrupted"
         message={error}

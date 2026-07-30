@@ -2,6 +2,21 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.10.0] — 2026-07-30
+
+### Trading events now reach the iPhone
+
+- [NEW] Trader notifications arrive as iPhone system notifications and open
+  the Dashboard when tapped.
+- [NEW] A notification visible on the Dashboard appears as an overlay and is
+  marked read immediately on this iPhone.
+- [NEW] More → Notifications shows the trader's complete app notification
+  history newest first, with a local unread mark and badge.
+- [NEW] BSCS, sudden market-shock, and error-storm breaker activation and
+  recovery appear in this history and notify only the iPhone.
+- [VERIFIED] Type checking, 61 unit tests, Expo Doctor 20/20, and the iOS
+  export pass.
+
 ## [0.9.0] — 2026-07-29
 
 ### The trading day can follow you, if you say so

@@ -4,6 +4,25 @@ export type Trader = {
   email: string;
 };
 
+export type AppNotificationSeverity = 'critical' | 'high' | 'medium' | 'info';
+
+export type AppNotification = {
+  id: string;
+  canonical: string;
+  title: string;
+  body: string;
+  severity: AppNotificationSeverity;
+  status: string;
+  sent_at: string;
+};
+
+export type NotificationsResponse = {
+  data: {
+    notifications: AppNotification[];
+    next_cursor: string | null;
+  };
+};
+
 export type Account = {
   id: number;
   name: string;

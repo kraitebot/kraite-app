@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../auth/AuthContext';
 import { Logo } from '../components/Logo';
 import { RootStackParamList, TabParamList } from '../navigation/types';
+import { useNotifications } from '../notifications/NotificationContext';
 import { useTheme } from '../theme/ThemeContext';
 import { fonts, radius, spacing } from '../theme/tokens';
 import { useScreenTransition } from '../transitions/ScreenTransitionContext';
@@ -19,12 +20,14 @@ export function MoreScreen() {
   const insets = useSafeAreaInsets();
   const { palette, toggle } = useTheme();
   const { user, logout } = useAuth();
+  const { unreadCount } = useNotifications();
   const { runTransition } = useScreenTransition();
 
-  const row = (title: string, subtitle: string, icon: keyof typeof Ionicons.glyphMap, onPress: () => void) => (
+  const row = (title: string, subtitle: string, icon: keyof typeof Ionicons.glyphMap, onPress: () => void, badge?: number) => (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.row, { borderColor: palette.line, backgroundColor: palette.panel }, pressed && { opacity: 0.72 }]}>
       <View style={[styles.rowIcon, { backgroundColor: palette.greenSoft }]}><Ionicons name={icon} size={21} color={palette.green} /></View>
       <View style={styles.rowCopy}><Text style={[styles.rowTitle, { color: palette.text }]}>{title}</Text><Text style={[styles.rowSubtitle, { color: palette.textSoft }]}>{subtitle}</Text></View>
+      {badge ? <View style={[styles.badge, { backgroundColor: palette.red }]}><Text style={styles.badgeText}>{badge > 99 ? '99+' : badge}</Text></View> : null}
       <Ionicons name="chevron-forward" size={18} color={palette.textFaint} />
     </Pressable>
   );
@@ -36,6 +39,7 @@ export function MoreScreen() {
       <Text style={[styles.title, { color: palette.text }]}>More</Text>
       <Text style={[styles.identity, { color: palette.textSoft }]}>{user?.name ?? 'Trader'} · {user?.email || 'Secure session'}</Text>
       <View style={styles.rows}>
+        {row('Notifications', unreadCount > 0 ? `${unreadCount} unread trading events` : 'Trading events and system changes', 'notifications-outline', () => { void runTransition(() => navigation.navigate('Notifications')); }, unreadCount)}
         {row('Billing', 'Wallet and subscription', 'card-outline', () => { void runTransition(() => navigation.navigate('Billing')); })}
         {row('Profile', 'Identity and Face ID sign-in', 'person-outline', () => { void runTransition(() => navigation.navigate('Profile')); })}
         {row('Appearance', palette.dark ? 'Switch to light theme' : 'Switch to dark theme', palette.dark ? 'sunny-outline' : 'moon-outline', toggle)}
@@ -59,6 +63,8 @@ const styles = StyleSheet.create({
   rowCopy: { flex: 1, gap: 2 },
   rowTitle: { fontFamily: fonts.medium, fontSize: 16 },
   rowSubtitle: { fontFamily: fonts.regular, fontSize: 13 },
+  badge: { minWidth: 24, height: 24, borderRadius: 12, paddingHorizontal: 6, alignItems: 'center', justifyContent: 'center' },
+  badgeText: { color: '#FFFFFF', fontFamily: fonts.monoBold, fontSize: 9 },
   logout: { borderWidth: 1, borderRadius: radius.control, minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing(1), marginTop: spacing(2) },
   logoutText: { fontFamily: fonts.medium, fontSize: 15 },
 });

@@ -1,17 +1,25 @@
-# WhereAreWe — 2026-07-28
+# WhereAreWe — 2026-07-30
 
 ## Current state
 
 The Expo/React Native iPhone project is versioned and signed for Bruno's paired
 iPhone. It has secure password and passkey authentication, a live dashboard,
 completed-position history, projections, trader-controlled account
-configuration, account switching, foreground-only refresh, and matched light
-and dark themes.
+configuration, account switching, iPhone system notifications, local unread
+state, foreground-only refresh, and matched light and dark themes.
 
 ## Working trader surfaces
 
 - Expo iPhone app using the same base stack and patterns as Traveliny.
 - Password login and Face ID sign-in, with secure local token storage.
+- Every trader notification also reaches the iPhone app. Foreground events
+  appear over Dashboard, and tapping a system notification opens Dashboard.
+- **More → Notifications** shows the signed-in trader's complete newest-first
+  app history. Visible events are marked read immediately; unread state and
+  badges exist only on iPhone.
+- BSCS, fast market-shock, and trading health-guard activation and recovery
+  events are app-only. They remain audited without duplicating into Pushover,
+  mail, or Telegram.
 - Read-only trader dashboard with account switching.
 - Four KPI tiles: portfolio value, today's realised P&L, 30-day P&L, and
   open-position long/short split.
@@ -83,7 +91,8 @@ alive on that device.
 
 - `admin.kraite` serves `api.kraite.com/v1/auth/token`,
   `api.kraite.com/v1/dashboard`, completed-position history, projections,
-  account configuration, passkeys, and token logout.
+  account configuration, passkeys, app notification history, iPhone push-token
+  registration, and token logout.
 - Sanctum tokens are stored hashed server-side, expire after 30 days, and carry
   `dashboard:read` for every read plus `accounts:write` for the two account
   write routes. A token issued before account editing existed still reads, is
@@ -95,6 +104,8 @@ alive on that device.
 - Position history returns only cleanly closed owned positions.
 - Projection responses reuse admin's account and fleet financial engines.
 - The shared `kraitebot/core` schema owns the personal access token migration.
+- The shared schema also owns encrypted iPhone routes and app-channel audit
+  rows. History is always scoped by authenticated trader.
 
 ## Verification
 

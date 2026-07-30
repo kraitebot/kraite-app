@@ -4,6 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 
 import { api, getToken, setToken } from '../api/client';
 import { LoginResponse, Trader } from '../api/types';
+import { clearStoredExpoPushToken, getStoredExpoPushToken } from '../notifications/pushToken';
 import { isPasskeySupported } from './passkeys';
 import { shouldOfferPasskey } from './passkeyPresentation';
 
@@ -79,8 +80,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setPasskeyInvitePending(false);
     },
     logout: async () => {
-      await api.delete('/auth/token').catch(() => undefined);
-      await Promise.all([setToken(null), SecureStore.deleteItemAsync(USER_KEY)]);
+      const expoPushToken = await getStoredExpoPushToken();
+      await api.delete('/auth/token', expoPushToken ? { expo_push_token: expoPushToken } : undefined).catch(() => undefined);
+      await Promise.all([
+        setToken(null),
+        SecureStore.deleteItemAsync(USER_KEY),
+        clearStoredExpoPushToken(),
+      ]);
       setPasskeyInvitePending(false);
       setUser(null);
     },

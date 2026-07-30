@@ -11,5 +11,6 @@ export type TabParamList = {
 export type RootStackParamList = {
   Tabs: NavigatorScreenParams<TabParamList> | undefined;
   Billing: undefined;
+  Notifications: undefined;
   Profile: undefined;
 };
