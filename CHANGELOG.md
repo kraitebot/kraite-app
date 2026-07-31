@@ -2,6 +2,17 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.10.1] — 2026-08-01
+
+### iPhone push delivery is connected
+
+- [FIXED] The installed app now carries its Expo project identity, allowing
+  an authenticated iPhone to register for remote trader notifications.
+- [CONFIGURED] Expo Application Services owns the Apple Push Notifications
+  key for `com.kraite.app`.
+- [FIXED] A notification received while Kraite is in the background marks the
+  Home Screen icon with `1`; opening the app clears it once visible.
+
 ## [0.10.0] — 2026-07-30
 
 ### Trading events now reach the iPhone

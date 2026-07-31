@@ -1,4 +1,4 @@
-# WhereAreWe — 2026-07-30
+# WhereAreWe — 2026-08-01
 
 ## Current state
 
@@ -16,7 +16,8 @@ state, foreground-only refresh, and matched light and dark themes.
   appear over Dashboard, and tapping a system notification opens Dashboard.
 - **More → Notifications** shows the signed-in trader's complete newest-first
   app history. Visible events are marked read immediately; unread state and
-  badges exist only on iPhone.
+  badges exist only on iPhone. A background notification sets the Home Screen
+  icon badge to `1`; opening Kraite clears it once the event is visible.
 - BSCS, fast market-shock, and trading health-guard activation and recovery
   events are app-only. They remain audited without duplicating into Pushover,
   mail, or Telegram.

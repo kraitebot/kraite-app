@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "Kraite",
-    "slug": "kraite",
-    "version": "0.10.0",
+    "slug": "bruno-falcao",
+    "version": "0.10.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -10,7 +10,7 @@
     "scheme": "kraite",
     "ios": {
       "supportsTablet": false,
-      "buildNumber": "12",
+      "buildNumber": "13",
       "appleTeamId": "FWCW3LG29Y",
       "bundleIdentifier": "com.kraite.app",
       "associatedDomains": [
@@ -43,7 +43,11 @@
       "expo-status-bar"
     ],
     "extra": {
-      "apiUrl": "https://api.kraite.com/v1"
-    }
+      "apiUrl": "https://api.kraite.com/v1",
+      "eas": {
+        "projectId": "82d136b8-8fb8-4a8c-bb08-a1a72c96076b"
+      }
+    },
+    "owner": "brunofalcaos-team"
   }
 }
