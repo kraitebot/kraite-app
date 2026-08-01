@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
   mergeNotifications,
   mergeReadIds,
+  newestUnreadNotification,
   notificationTone,
   parsePushNotification,
   unreadNotificationCount,
@@ -85,6 +86,25 @@ test('marks only visible notifications read locally and bounds retained identiti
   assert.equal(unreadNotificationCount(notifications, ['one']), 2);
   assert.deepEqual(mergeReadIds(['one', 'legacy'], ['two'], 3), ['two', 'one', 'legacy']);
   assert.deepEqual(mergeReadIds(['one', 'legacy'], ['two', 'three'], 3), ['two', 'three', 'one']);
+});
+
+test('selects the newest unread notification for dashboard replay', () => {
+  const notifications = [
+    ['newest', '2026-07-30T21:00:00.000Z'],
+    ['next', '2026-07-30T20:00:00.000Z'],
+    ['oldest', '2026-07-30T19:00:00.000Z'],
+  ].map(([id, sent_at]) => ({
+    id,
+    canonical: 'position_closed',
+    title: id,
+    body: id,
+    severity: 'info',
+    status: 'delivered',
+    sent_at,
+  }));
+
+  assert.equal(newestUnreadNotification(notifications, ['newest'])?.id, 'next');
+  assert.equal(newestUnreadNotification(notifications, ['newest', 'next', 'oldest']), null);
 });
 
 test('maps breaker urgency to the existing dashboard overlay tones', () => {

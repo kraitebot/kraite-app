@@ -2,6 +2,17 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.11.0] — 2026-08-01
+
+### Unread notifications return to the Dashboard
+
+- [NEW] Opening or resuming Kraite presents the newest unread notification on
+  the Dashboard while preserving the complete notification history.
+- [PRESERVED] A notification becomes read only when visible, and history stays
+  ordered newest first.
+- [FIXED] A previously handled system-notification tap no longer reopens on a
+  later cold launch.
+
 ## [0.10.2] — 2026-08-01
 
 ### Notification release integration

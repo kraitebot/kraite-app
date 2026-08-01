@@ -19,6 +19,7 @@ import { openDashboard } from '../navigation/navigationRef';
 import {
   mergeNotifications,
   mergeReadIds,
+  newestUnreadNotification,
   parsePushNotification,
   unreadNotificationCount,
 } from './notificationState';
@@ -79,17 +80,29 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const notificationsRef = useRef<AppNotification[]>([]);
+  const readIdsRef = useRef<string[]>([]);
   const loadingNext = useRef(false);
   const handledResponseId = useRef<string | null>(null);
 
-  const refresh = useCallback(async (): Promise<void> => {
+  const refreshNotifications = useCallback(async (presentLatestUnread = false): Promise<void> => {
     if (!user || Platform.OS !== 'ios') return;
 
     setRefreshing(true);
     try {
       const response = await api.get<NotificationsResponse>('/notifications');
-      setNotifications((current) => mergeNotifications(current, response.data.notifications));
+      const merged = mergeNotifications(notificationsRef.current, response.data.notifications);
+      notificationsRef.current = merged;
+      setNotifications(merged);
       setNextCursor(response.data.next_cursor);
+
+      if (presentLatestUnread) {
+        const latestUnread = newestUnreadNotification(merged, readIdsRef.current);
+        if (latestUnread) {
+          setOverlay(latestUnread);
+          openDashboard();
+        }
+      }
     } catch (caught) {
       if (caught instanceof ApiError && caught.status === 401) {
         await expireSession();
@@ -100,6 +113,11 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     }
   }, [expireSession, user]);
 
+  const refresh = useCallback(
+    async (): Promise<void> => refreshNotifications(false),
+    [refreshNotifications],
+  );
+
   const loadNext = useCallback(async (): Promise<void> => {
     if (!nextCursor || loadingNext.current || Platform.OS !== 'ios') return;
 
@@ -108,7 +126,9 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       const response = await api.get<NotificationsResponse>(
         `/notifications?cursor=${encodeURIComponent(nextCursor)}`,
       );
-      setNotifications((current) => mergeNotifications(current, response.data.notifications));
+      const merged = mergeNotifications(notificationsRef.current, response.data.notifications);
+      notificationsRef.current = merged;
+      setNotifications(merged);
       setNextCursor(response.data.next_cursor);
     } finally {
       loadingNext.current = false;
@@ -151,20 +171,20 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const markVisible = useCallback((ids: string[]): void => {
     if (!user || Platform.OS !== 'ios' || ids.length === 0) return;
 
-    setReadIds((current) => {
-      const next = mergeReadIds(current, ids);
-      void SecureStore.setItemAsync(`${READ_KEY_PREFIX}${user.id}`, JSON.stringify(next));
-
-      return next;
-    });
+    const next = mergeReadIds(readIdsRef.current, ids);
+    readIdsRef.current = next;
+    setReadIds(next);
+    void SecureStore.setItemAsync(`${READ_KEY_PREFIX}${user.id}`, JSON.stringify(next));
   }, [user]);
 
   const receive = useCallback((incoming: Notifications.Notification): void => {
     const parsed = notificationFromExpo(incoming);
-    setNotifications((current) => mergeNotifications(current, [parsed]));
+    const merged = mergeNotifications(notificationsRef.current, [parsed]);
+    notificationsRef.current = merged;
+    setNotifications(merged);
     setOverlay(parsed);
-    markVisible([parsed.id]);
-  }, [markVisible]);
+    openDashboard();
+  }, []);
 
   const respond = useCallback((response: Notifications.NotificationResponse): void => {
     const responseId = response.notification.request.identifier;
@@ -172,13 +192,14 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
     handledResponseId.current = responseId;
     receive(response.notification);
-    openDashboard();
   }, [receive]);
 
   useEffect(() => {
     if (!user || Platform.OS !== 'ios') {
       setNotifications([]);
       setReadIds([]);
+      notificationsRef.current = [];
+      readIdsRef.current = [];
       setOverlay(null);
       setNextCursor(null);
       setLoading(false);
@@ -188,28 +209,37 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     let active = true;
     setNotifications([]);
     setReadIds([]);
+    notificationsRef.current = [];
+    readIdsRef.current = [];
     setOverlay(null);
     setNextCursor(null);
     setLoading(true);
 
-    void SecureStore.getItemAsync(`${READ_KEY_PREFIX}${user.id}`).then((stored) => {
+    void SecureStore.getItemAsync(`${READ_KEY_PREFIX}${user.id}`).then(async (stored) => {
       if (!active) return;
       try {
-        setReadIds(stored ? JSON.parse(stored) as string[] : []);
+        const storedReadIds = stored ? JSON.parse(stored) as string[] : [];
+        readIdsRef.current = storedReadIds;
+        setReadIds(storedReadIds);
       } catch {
+        readIdsRef.current = [];
         setReadIds([]);
       }
+
+      if (active) await refreshNotifications(true);
     });
     void registerPhone();
-    void refresh();
     void Notifications.getLastNotificationResponseAsync().then((response) => {
-      if (active && response) respond(response);
+      if (active && response) {
+        respond(response);
+        Notifications.clearLastNotificationResponse();
+      }
     });
 
     return () => {
       active = false;
     };
-  }, [refresh, registerPhone, respond, user]);
+  }, [refreshNotifications, registerPhone, respond, user]);
 
   useEffect(() => {
     if (!user || Platform.OS !== 'ios') return;
@@ -219,7 +249,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     const appStateSubscription = AppState.addEventListener('change', (state) => {
       if (state === 'active') {
         void registerPhone();
-        void refresh();
+        void refreshNotifications(true);
       }
     });
 
@@ -228,7 +258,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       responseSubscription.remove();
       appStateSubscription.remove();
     };
-  }, [receive, refresh, registerPhone, respond, user]);
+  }, [receive, refreshNotifications, registerPhone, respond, user]);
 
   const unreadCount = useMemo(
     () => Platform.OS === 'ios' ? unreadNotificationCount(notifications, readIds) : 0,

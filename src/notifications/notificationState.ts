@@ -54,6 +54,15 @@ export function unreadNotificationCount(notifications: AppNotification[], readId
   return notifications.reduce((count, notification) => count + (read.has(notification.id) ? 0 : 1), 0);
 }
 
+export function newestUnreadNotification(
+  notifications: AppNotification[],
+  readIds: string[],
+): AppNotification | null {
+  const read = new Set(readIds);
+
+  return notifications.find((notification) => !read.has(notification.id)) ?? null;
+}
+
 export function notificationTone(severity: AppNotificationSeverity): NoticeTone {
   if (severity === 'critical') return 'error';
   if (severity === 'high') return 'warning';
