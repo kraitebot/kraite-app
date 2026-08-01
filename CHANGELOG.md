@@ -2,6 +2,16 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.10.2] — 2026-08-01
+
+### Notification release integration
+
+- [INCLUDED] The production push identity, unread badge behavior, and WAP close
+  notification integration from the notification release are carried into the
+  coordinated Laravel 13 portfolio release.
+- [DEPENDENCY] React Navigation and supporting build dependencies are refreshed
+  to their latest compatible patch releases.
+
 ## [0.10.1] — 2026-08-01
 
 ### iPhone push delivery is connected

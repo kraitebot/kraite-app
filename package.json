@@ -1,6 +1,6 @@
 {
   "name": "kraite-mobile",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "main": "index.ts",
   "private": true,
   "scripts": {
@@ -35,5 +35,10 @@
   "devDependencies": {
     "@types/react": "~19.2.2",
     "typescript": "~6.0.3"
+  },
+  "overrides": {
+    "xcode": {
+      "uuid": "^11.1.1"
+    }
   }
 }
