@@ -2,6 +2,13 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.13.2] — 2026-08-02
+
+### Even BTC dashboard spacing
+
+- [FIXED] The BTC sparkline now receives the remaining row width after the
+  price block, keeping even visual spacing between the price and four signals.
+
 ## [0.13.1] — 2026-08-02
 
 ### Compact BTC dashboard tile

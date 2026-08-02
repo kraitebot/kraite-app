@@ -575,7 +575,7 @@ const styles = StyleSheet.create({
   btcCard: { width: '100%', minHeight: 66, borderWidth: 1, borderRadius: radius.card, paddingHorizontal: spacing(1.25), paddingVertical: spacing(1), flexDirection: 'row', alignItems: 'center', gap: spacing(1), overflow: 'hidden' },
   btcImage: { width: 38, height: 38, borderRadius: 19 },
   btcImageFallback: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
-  btcIdentity: { width: 96, minWidth: 0, gap: 1 },
+  btcIdentity: { flexShrink: 0, gap: 1 },
   btcToken: { fontFamily: fonts.monoBold, fontSize: 15.5, lineHeight: 19 },
   btcPrice: { fontFamily: fonts.monoBold, fontSize: 13, lineHeight: 17, letterSpacing: -0.35 },
   btcSpark: { flex: 1, minWidth: 58, height: 32 },

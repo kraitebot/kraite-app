@@ -2,7 +2,7 @@
   "expo": {
     "name": "Kraite",
     "slug": "bruno-falcao",
-    "version": "0.13.1",
+    "version": "0.13.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -10,7 +10,7 @@
     "scheme": "kraite",
     "ios": {
       "supportsTablet": false,
-      "buildNumber": "18",
+      "buildNumber": "19",
       "appleTeamId": "FWCW3LG29Y",
       "bundleIdentifier": "com.kraite.app",
       "associatedDomains": [
