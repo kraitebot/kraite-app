@@ -167,6 +167,20 @@ export type BscsSummary = {
   components?: BscsComponent[];
 };
 
+export type TimeframeDot = {
+  timeframe: string;
+  direction: 'up' | 'down' | 'flat' | 'none';
+};
+
+export type BtcSummary = {
+  token: 'BTC';
+  name: string;
+  image: string | null;
+  mark: string | null;
+  spark_4h: number[];
+  dots: TimeframeDot[];
+};
+
 export type PositionTrack = {
   tp_pct: number;
   px_pct: number;
@@ -200,7 +214,7 @@ export type Position = {
   filled_count: number;
   total_limits: number;
   track: PositionTrack | null;
-  timeframe_dots: { timeframe: string; direction: 'up' | 'down' | 'flat' | 'none' }[];
+  timeframe_dots: TimeframeDot[];
 };
 
 /**
@@ -220,6 +234,7 @@ export type Dashboard = {
   account: Pick<Account, 'id' | 'name' | 'exchange'>;
   kpis: DashboardKpis;
   day_basis_hint?: DayBasisHint | null;
+  btc?: BtcSummary | null;
   bscs?: BscsSummary;
   last_position_closed_at?: string | null;
   positions: Position[];

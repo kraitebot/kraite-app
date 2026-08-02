@@ -12,3 +12,14 @@ export function percent(value: string | number | null, signed = true): string {
 
   return `${signed && number > 0 ? '+' : ''}${number.toFixed(2)}%`;
 }
+
+export function exactUsdPrice(value: string | null): string {
+  if (value === null || !/^-?\d+(?:\.\d+)?$/.test(value)) return '—';
+
+  const negative = value.startsWith('-');
+  const unsigned = negative ? value.slice(1) : value;
+  const [integer = '0', fraction] = unsigned.split('.');
+  const grouped = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+  return `${negative ? '−' : ''}$${grouped}${fraction ? `.${fraction}` : ''}`;
+}

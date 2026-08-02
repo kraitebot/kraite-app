@@ -10,6 +10,7 @@ import {
   Animated,
   AppState,
   AppStateStatus,
+  Image,
   LayoutAnimation,
   Pressable,
   RefreshControl,
@@ -23,7 +24,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, LinearGradient as SvgLinearGradient, Line, Path, Stop } from 'react-native-svg';
 
 import { api, ApiError } from '../api/client';
-import { Account, BscsComponent, BscsSummary, Dashboard, DashboardKpis, DashboardResponse, DayBasisHint } from '../api/types';
+import { Account, BscsComponent, BscsSummary, BtcSummary, Dashboard, DashboardKpis, DashboardResponse, DayBasisHint } from '../api/types';
 import { useAuth } from '../auth/AuthContext';
 import { AccountPicker } from '../components/AccountPicker';
 import { BscsSignalSheet } from '../components/BscsSignalSheet';
@@ -31,7 +32,7 @@ import { PositionCard } from '../components/PositionCard';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { NoticeOverlay } from '../components/ScreenState';
 import { bscsNarrative, formatBscsCadenceLine, formatBscsComponentValue, formatBscsPauseLine, formatBscsPositionCap, visibleBscsComponents } from '../dashboard/bscsPresentation';
-import { money, percent } from '../dashboard/formatters';
+import { exactUsdPrice, money, percent } from '../dashboard/formatters';
 import { lastPositionClosedLabel } from '../dashboard/positionTimeline';
 import { ACCOUNT_KEY, AUTO_REFRESH_KEY } from '../dashboard/preferences';
 import { shouldAutoRefresh } from '../dashboard/refreshPolicy';
@@ -40,13 +41,12 @@ import { notificationTone } from '../notifications/notificationState';
 import { useTheme } from '../theme/ThemeContext';
 import { fonts, radius, spacing } from '../theme/tokens';
 
-function Sparkline({ values, color }: { values: number[]; color: string }) {
+function Sparkline({ values, color, height = 38 }: { values: number[]; color: string; height?: number }) {
   const recent = values.slice(-18);
-  if (recent.length < 2) return <View style={styles.sparkEmpty} />;
+  if (recent.length < 2) return <View style={[styles.sparkEmpty, { height }]} />;
   const width = 124;
-  const height = 38;
   const chartTop = 3;
-  const chartBottom = 34;
+  const chartBottom = height - 4;
   const min = Math.min(...recent);
   const max = Math.max(...recent);
   const range = Math.max(max - min, 0.0001);
@@ -59,7 +59,7 @@ function Sparkline({ values, color }: { values: number[]; color: string }) {
   const end = points[points.length - 1]!;
 
   return (
-    <View style={styles.spark} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+    <View style={[styles.spark, { height }]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
       <Svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
         <Defs>
           <SvgLinearGradient id="spark-area" x1="0" y1="0" x2="0" y2="1">
@@ -115,6 +115,60 @@ function OpenPositionsKpi({ kpis }: { kpis: DashboardKpis }) {
       <View style={styles.splitLegend}>
         <Text style={[styles.splitText, { color: palette.green }]}>{kpis.long_count}L</Text>
         <Text style={[styles.splitText, { color: palette.red }]}>{kpis.short_count}S</Text>
+      </View>
+    </View>
+  );
+}
+
+function BtcMarketCard({ btc }: { btc: BtcSummary }) {
+  const { palette } = useTheme();
+  const spark = btc.spark_4h.filter(Number.isFinite);
+  const rising = spark.length < 2 || spark[spark.length - 1]! >= spark[0]!;
+  const accent = rising ? palette.green : palette.red;
+  const signals = btc.dots.slice(0, 4);
+
+  return (
+    <View style={[styles.btcCard, { backgroundColor: palette.panel, borderColor: palette.line }]}>
+      <View style={styles.btcTop}>
+        {btc.image
+          ? <Image source={{ uri: btc.image }} style={styles.btcImage} />
+          : <View style={[styles.btcImageFallback, { backgroundColor: palette.amberSoft }]}><Ionicons name="logo-bitcoin" size={24} color={palette.amber} /></View>}
+        <View style={styles.btcIdentity}>
+          <Text style={[styles.btcToken, { color: palette.text }]}>{btc.token}</Text>
+          <Text style={[styles.btcName, { color: palette.textSoft }]}>{btc.name}</Text>
+        </View>
+        <View
+          style={styles.btcSignals}
+          accessible
+          accessibilityLabel={signals.map((signal) => `${signal.timeframe} ${signal.direction}`).join(', ')}
+        >
+          {signals.map((signal) => <View
+            key={signal.timeframe}
+            style={[styles.btcSignal, {
+              backgroundColor: signal.direction === 'up'
+                ? palette.green
+                : signal.direction === 'down'
+                  ? palette.red
+                  : palette.textFaint,
+            }]}
+          />)}
+        </View>
+      </View>
+
+      <View style={styles.btcPriceRow}>
+        <View style={styles.btcPriceCopy}>
+          <Text style={[styles.btcPriceLabel, { color: palette.textFaint }]}>CURRENT PRICE</Text>
+          <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.btcPrice, { color: palette.text }]}>{exactUsdPrice(btc.mark)}</Text>
+        </View>
+        <Text style={[styles.btcWindow, { color: accent, backgroundColor: rising ? palette.greenSoft : palette.redSoft }]}>4H TREND</Text>
+      </View>
+
+      <View style={[styles.btcChart, { backgroundColor: palette.canvasRaised }]}>
+        <Sparkline values={spark} color={accent} height={62} />
+        <View style={styles.btcChartLabels}>
+          <Text style={[styles.btcChartLabel, { color: palette.textFaint }]}>4H AGO</Text>
+          <Text style={[styles.btcChartLabel, { color: palette.textFaint }]}>NOW</Text>
+        </View>
       </View>
     </View>
   );
@@ -424,6 +478,8 @@ export function DashboardScreen() {
 
           {dashboard.bscs ? <BscsKpi bscs={dashboard.bscs} reduceMotion={reduceMotion} /> : null}
 
+          {dashboard.btc ? <BtcMarketCard btc={dashboard.btc} /> : null}
+
           <View style={styles.sectionHeader}>
             <View>
               <Text style={[styles.sectionTitle, { color: palette.text }]}>Open positions</Text>
@@ -531,6 +587,23 @@ const styles = StyleSheet.create({
   bscsSignalValue: { fontFamily: fonts.monoBold, fontSize: 12.5, lineHeight: 16, marginLeft: 'auto' },
   bscsSignalChip: { borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 3, width: 58, alignItems: 'center' },
   bscsSignalChipText: { fontFamily: fonts.monoBold, fontSize: 9, lineHeight: 11, letterSpacing: 0.8 },
+  btcCard: { width: '100%', borderWidth: 1, borderRadius: radius.card, padding: spacing(1.5), gap: spacing(1.5), overflow: 'hidden' },
+  btcTop: { flexDirection: 'row', alignItems: 'center', gap: spacing(1) },
+  btcImage: { width: 42, height: 42, borderRadius: 21 },
+  btcImageFallback: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
+  btcIdentity: { flex: 1, gap: 2 },
+  btcToken: { fontFamily: fonts.monoBold, fontSize: 17, lineHeight: 21 },
+  btcName: { fontFamily: fonts.regular, fontSize: 12.5, lineHeight: 16 },
+  btcSignals: { flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start', paddingTop: 4 },
+  btcSignal: { width: 7, height: 7, borderRadius: 4 },
+  btcPriceRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: spacing(1) },
+  btcPriceCopy: { flex: 1, minWidth: 0 },
+  btcPriceLabel: { fontFamily: fonts.monoBold, fontSize: 9, lineHeight: 12, letterSpacing: 1.1 },
+  btcPrice: { fontFamily: fonts.monoBold, fontSize: 28, lineHeight: 34, letterSpacing: -1.1, marginTop: 3 },
+  btcWindow: { fontFamily: fonts.monoBold, fontSize: 9, lineHeight: 12, letterSpacing: 0.8, borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 5, overflow: 'hidden' },
+  btcChart: { borderRadius: radius.control, paddingHorizontal: spacing(1.25), paddingTop: spacing(1), paddingBottom: spacing(0.75) },
+  btcChartLabels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 2 },
+  btcChartLabel: { fontFamily: fonts.monoBold, fontSize: 8, lineHeight: 10, letterSpacing: 0.8 },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing(1.5) },
   sectionTitle: { fontFamily: fonts.display, fontSize: 23, letterSpacing: -0.7 },
   sectionCopy: { fontFamily: fonts.regular, fontSize: 12.5, marginTop: 3 },

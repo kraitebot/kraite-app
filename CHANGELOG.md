@@ -2,6 +2,15 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.13.0] — 2026-08-02
+
+### BTC market context on Dashboard
+
+- [NEW] Dashboard now shows BTC's exchange-precision price, four-hour 15m
+  sparkline, icon/name, and four active timeframe direction signals.
+- [PRESERVED] The tile refreshes with the existing Dashboard request and adds
+  no client-side market polling.
+
 ## [0.12.0] — 2026-08-02
 
 ### Absolute pending notification state
