@@ -2,7 +2,7 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
-## [0.14.0] — 2026-08-02
+## [0.14.1] — 2026-08-02
 
 ### Trader-day BTC context
 
