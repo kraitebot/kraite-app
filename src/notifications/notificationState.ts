@@ -54,13 +54,34 @@ export function unreadNotificationCount(notifications: AppNotification[], readId
   return notifications.reduce((count, notification) => count + (read.has(notification.id) ? 0 : 1), 0);
 }
 
-export function newestUnreadNotification(
+export type PendingNotificationPresentation = {
+  destination: 'dashboard' | 'notifications' | null;
+  overlay: AppNotification | null;
+};
+
+export function pendingNotificationPresentation(
   notifications: AppNotification[],
   readIds: string[],
-): AppNotification | null {
+  pendingCount?: number,
+): PendingNotificationPresentation {
   const read = new Set(readIds);
+  const unread = notifications.filter((notification) => !read.has(notification.id));
+  const count = pendingCount ?? unread.length;
 
-  return notifications.find((notification) => !read.has(notification.id)) ?? null;
+  if (count === 0) {
+    return { destination: null, overlay: null };
+  }
+
+  const onlyUnread = count === 1 ? unread[0] : null;
+  if (onlyUnread) {
+    return { destination: 'dashboard', overlay: onlyUnread };
+  }
+
+  if (count === 1) {
+    return { destination: null, overlay: null };
+  }
+
+  return { destination: 'notifications', overlay: null };
 }
 
 export function notificationTone(severity: AppNotificationSeverity): NoticeTone {

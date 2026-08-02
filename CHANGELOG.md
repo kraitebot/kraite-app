@@ -2,6 +2,17 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.12.0] — 2026-08-02
+
+### Absolute pending notification state
+
+- [FIXED] The iPhone badge now shows the absolute number of pending trader
+  notifications, including across multiple devices and consecutive pushes.
+- [NEW] Opening with one pending event presents its overlay on Dashboard;
+  multiple pending events open the newest-first Notifications list.
+- [PRESERVED] Only visible events become read, and the server keeps every
+  registered iPhone badge synchronized.
+
 ## [0.11.0] — 2026-08-01
 
 ### Unread notifications return to the Dashboard

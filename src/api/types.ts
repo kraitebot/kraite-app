@@ -13,13 +13,22 @@ export type AppNotification = {
   body: string;
   severity: AppNotificationSeverity;
   status: string;
+  is_read?: boolean;
   sent_at: string;
 };
 
 export type NotificationsResponse = {
   data: {
     notifications: AppNotification[];
+    unread_count?: number;
+    pending_notification?: AppNotification | null;
     next_cursor: string | null;
+  };
+};
+
+export type MarkNotificationsReadResponse = {
+  data: {
+    unread_count: number;
   };
 };
 

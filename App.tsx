@@ -21,7 +21,7 @@ import { AuthProvider, useAuth } from './src/auth/AuthContext';
 import { PasskeyInvite } from './src/components/PasskeyInvite';
 import { LoadingScreen } from './src/components/ScreenState';
 import { RootStackParamList, TabParamList } from './src/navigation/types';
-import { flushPendingDashboardNavigation, navigationRef } from './src/navigation/navigationRef';
+import { flushPendingNavigation, navigationRef } from './src/navigation/navigationRef';
 import { NotificationProvider, useNotifications } from './src/notifications/NotificationContext';
 import { DashboardScreen } from './src/screens/DashboardScreen';
 import { AccountsScreen } from './src/screens/AccountsScreen';
@@ -116,7 +116,7 @@ function RootNavigation() {
   };
 
   return <>
-    <NavigationContainer ref={navigationRef} theme={navigationTheme} onReady={flushPendingDashboardNavigation}>
+    <NavigationContainer ref={navigationRef} theme={navigationTheme} onReady={flushPendingNavigation}>
       <Stack.Navigator screenOptions={{ headerShown: false, animation: 'none', gestureEnabled: false, contentStyle: { backgroundColor: palette.canvas } }}>
         <Stack.Screen name="Tabs" component={Tabs} />
         <Stack.Screen name="Billing" component={StackPlaceholder} />

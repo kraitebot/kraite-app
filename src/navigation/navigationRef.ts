@@ -4,18 +4,34 @@ import { RootStackParamList } from './types';
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
-let dashboardPending = false;
+type PendingDestination = 'Dashboard' | 'Notifications';
 
-export function openDashboard(): void {
+let pendingDestination: PendingDestination | null = null;
+
+function navigate(destination: PendingDestination): void {
   if (!navigationRef.isReady()) {
-    dashboardPending = true;
+    pendingDestination = destination;
     return;
   }
 
-  dashboardPending = false;
-  navigationRef.navigate('Tabs', { screen: 'Dashboard' });
+  pendingDestination = null;
+
+  if (destination === 'Dashboard') {
+    navigationRef.navigate('Tabs', { screen: 'Dashboard' });
+    return;
+  }
+
+  navigationRef.navigate('Notifications');
 }
 
-export function flushPendingDashboardNavigation(): void {
-  if (dashboardPending) openDashboard();
+export function openDashboard(): void {
+  navigate('Dashboard');
+}
+
+export function openNotifications(): void {
+  navigate('Notifications');
+}
+
+export function flushPendingNavigation(): void {
+  if (pendingDestination) navigate(pendingDestination);
 }

@@ -13,13 +13,17 @@ import React, {
 import { AppState, Platform } from 'react-native';
 
 import { api, ApiError } from '../api/client';
-import { AppNotification, NotificationsResponse } from '../api/types';
+import {
+  AppNotification,
+  MarkNotificationsReadResponse,
+  NotificationsResponse,
+} from '../api/types';
 import { useAuth } from '../auth/AuthContext';
-import { openDashboard } from '../navigation/navigationRef';
+import { openDashboard, openNotifications } from '../navigation/navigationRef';
 import {
   mergeNotifications,
   mergeReadIds,
-  newestUnreadNotification,
+  pendingNotificationPresentation,
   parsePushNotification,
   unreadNotificationCount,
 } from './notificationState';
@@ -80,10 +84,30 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [readyUserId, setReadyUserId] = useState<number | null>(null);
+  const [pendingCount, setPendingCount] = useState(0);
   const notificationsRef = useRef<AppNotification[]>([]);
   const readIdsRef = useRef<string[]>([]);
+  const pendingCountRef = useRef(0);
+  const readStateReadyRef = useRef(false);
   const loadingNext = useRef(false);
   const handledResponseId = useRef<string | null>(null);
+
+  const presentPendingNotifications = useCallback((
+    available: AppNotification[],
+    count = pendingCountRef.current,
+  ): void => {
+    if (!readStateReadyRef.current) return;
+
+    const presentation = pendingNotificationPresentation(available, readIdsRef.current, count);
+    setOverlay(presentation.overlay);
+
+    if (presentation.destination === 'dashboard') {
+      openDashboard();
+    } else if (presentation.destination === 'notifications') {
+      openNotifications();
+    }
+  }, []);
 
   const refreshNotifications = useCallback(async (presentLatestUnread = false): Promise<void> => {
     if (!user || Platform.OS !== 'ios') return;
@@ -91,17 +115,27 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     setRefreshing(true);
     try {
       const response = await api.get<NotificationsResponse>('/notifications');
-      const merged = mergeNotifications(notificationsRef.current, response.data.notifications);
+      const serverNotifications = response.data.pending_notification
+        ? [...response.data.notifications, response.data.pending_notification]
+        : response.data.notifications;
+      const merged = mergeNotifications(notificationsRef.current, serverNotifications);
+      const serverReadIds = serverNotifications
+        .filter((notification) => notification.is_read === true)
+        .map((notification) => notification.id);
+      const nextReadIds = mergeReadIds(readIdsRef.current, serverReadIds);
+      const nextPendingCount = typeof response.data.unread_count === 'number'
+        ? response.data.unread_count
+        : unreadNotificationCount(merged, nextReadIds);
       notificationsRef.current = merged;
+      readIdsRef.current = nextReadIds;
+      pendingCountRef.current = nextPendingCount;
       setNotifications(merged);
+      setReadIds(nextReadIds);
+      setPendingCount(nextPendingCount);
       setNextCursor(response.data.next_cursor);
 
       if (presentLatestUnread) {
-        const latestUnread = newestUnreadNotification(merged, readIdsRef.current);
-        if (latestUnread) {
-          setOverlay(latestUnread);
-          openDashboard();
-        }
+        presentPendingNotifications(merged, nextPendingCount);
       }
     } catch (caught) {
       if (caught instanceof ApiError && caught.status === 401) {
@@ -111,7 +145,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       setRefreshing(false);
       setLoading(false);
     }
-  }, [expireSession, user]);
+  }, [expireSession, presentPendingNotifications, user]);
 
   const refresh = useCallback(
     async (): Promise<void> => refreshNotifications(false),
@@ -127,8 +161,14 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         `/notifications?cursor=${encodeURIComponent(nextCursor)}`,
       );
       const merged = mergeNotifications(notificationsRef.current, response.data.notifications);
+      const serverReadIds = response.data.notifications
+        .filter((notification) => notification.is_read === true)
+        .map((notification) => notification.id);
+      const nextReadIds = mergeReadIds(readIdsRef.current, serverReadIds);
       notificationsRef.current = merged;
+      readIdsRef.current = nextReadIds;
       setNotifications(merged);
+      setReadIds(nextReadIds);
       setNextCursor(response.data.next_cursor);
     } finally {
       loadingNext.current = false;
@@ -171,28 +211,58 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const markVisible = useCallback((ids: string[]): void => {
     if (!user || Platform.OS !== 'ios' || ids.length === 0) return;
 
-    const next = mergeReadIds(readIdsRef.current, ids);
-    readIdsRef.current = next;
-    setReadIds(next);
-    void SecureStore.setItemAsync(`${READ_KEY_PREFIX}${user.id}`, JSON.stringify(next));
-  }, [user]);
+    const read = new Set(readIdsRef.current);
+    const newlyVisible = [...new Set(ids)].filter((id) => !read.has(id));
+    if (newlyVisible.length === 0) return;
 
-  const receive = useCallback((incoming: Notifications.Notification): void => {
+    const next = mergeReadIds(readIdsRef.current, newlyVisible);
+    const nextPendingCount = Math.max(0, pendingCountRef.current - newlyVisible.length);
+    readIdsRef.current = next;
+    pendingCountRef.current = nextPendingCount;
+    setReadIds(next);
+    setPendingCount(nextPendingCount);
+    void SecureStore.setItemAsync(`${READ_KEY_PREFIX}${user.id}`, JSON.stringify(next));
+    void api.patch<MarkNotificationsReadResponse>('/notifications/read', {
+      event_ids: newlyVisible,
+    }).then((response) => {
+      pendingCountRef.current = response.data.unread_count;
+      setPendingCount(response.data.unread_count);
+    }).catch(async (caught) => {
+      if (caught instanceof ApiError && caught.status === 401) {
+        await expireSession();
+      }
+    });
+  }, [expireSession, user]);
+
+  const storeIncoming = useCallback((incoming: Notifications.Notification): AppNotification[] => {
     const parsed = notificationFromExpo(incoming);
     const merged = mergeNotifications(notificationsRef.current, [parsed]);
     notificationsRef.current = merged;
     setNotifications(merged);
-    setOverlay(parsed);
-    openDashboard();
+    return merged;
   }, []);
+
+  const receive = useCallback((incoming: Notifications.Notification): void => {
+    const badge = incoming.request.content.badge;
+    const nextPendingCount = typeof badge === 'number'
+      ? Math.max(0, badge)
+      : pendingCountRef.current + 1;
+    pendingCountRef.current = nextPendingCount;
+    setPendingCount(nextPendingCount);
+    presentPendingNotifications(storeIncoming(incoming), nextPendingCount);
+  }, [presentPendingNotifications, storeIncoming]);
 
   const respond = useCallback((response: Notifications.NotificationResponse): void => {
     const responseId = response.notification.request.identifier;
     if (handledResponseId.current === responseId) return;
 
     handledResponseId.current = responseId;
-    receive(response.notification);
-  }, [receive]);
+    storeIncoming(response.notification);
+
+    if (readStateReadyRef.current) {
+      void refreshNotifications(true);
+    }
+  }, [refreshNotifications, storeIncoming]);
 
   useEffect(() => {
     if (!user || Platform.OS !== 'ios') {
@@ -200,9 +270,13 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       setReadIds([]);
       notificationsRef.current = [];
       readIdsRef.current = [];
+      pendingCountRef.current = 0;
+      readStateReadyRef.current = false;
       setOverlay(null);
       setNextCursor(null);
       setLoading(false);
+      setReadyUserId(null);
+      setPendingCount(0);
       return;
     }
 
@@ -211,9 +285,13 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     setReadIds([]);
     notificationsRef.current = [];
     readIdsRef.current = [];
+    pendingCountRef.current = 0;
+    readStateReadyRef.current = false;
     setOverlay(null);
     setNextCursor(null);
     setLoading(true);
+    setReadyUserId(null);
+    setPendingCount(0);
 
     void SecureStore.getItemAsync(`${READ_KEY_PREFIX}${user.id}`).then(async (stored) => {
       if (!active) return;
@@ -226,7 +304,11 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         setReadIds([]);
       }
 
-      if (active) await refreshNotifications(true);
+      readStateReadyRef.current = true;
+      if (active) {
+        await refreshNotifications(true);
+        if (active) setReadyUserId(user.id);
+      }
     });
     void registerPhone();
     void Notifications.getLastNotificationResponseAsync().then((response) => {
@@ -238,6 +320,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
     return () => {
       active = false;
+      readStateReadyRef.current = false;
     };
   }, [refreshNotifications, registerPhone, respond, user]);
 
@@ -260,16 +343,20 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     };
   }, [receive, refreshNotifications, registerPhone, respond, user]);
 
-  const unreadCount = useMemo(
-    () => Platform.OS === 'ios' ? unreadNotificationCount(notifications, readIds) : 0,
-    [notifications, readIds],
-  );
+  const unreadCount = Platform.OS === 'ios' ? pendingCount : 0;
 
   useEffect(() => {
-    if (Platform.OS === 'ios') {
-      void Notifications.setBadgeCountAsync(unreadCount).catch(() => undefined);
+    if (Platform.OS !== 'ios') return;
+
+    if (!user) {
+      void Notifications.setBadgeCountAsync(0).catch(() => undefined);
+      return;
     }
-  }, [unreadCount]);
+
+    if (readyUserId !== user.id) return;
+
+    void Notifications.setBadgeCountAsync(unreadCount).catch(() => undefined);
+  }, [readyUserId, unreadCount, user]);
 
   const value = useMemo<NotificationContextValue>(() => ({
     notifications,

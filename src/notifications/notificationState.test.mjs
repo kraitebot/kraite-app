@@ -4,8 +4,8 @@ import test from 'node:test';
 import {
   mergeNotifications,
   mergeReadIds,
-  newestUnreadNotification,
   notificationTone,
+  pendingNotificationPresentation,
   parsePushNotification,
   unreadNotificationCount,
 } from './notificationState.ts';
@@ -88,7 +88,7 @@ test('marks only visible notifications read locally and bounds retained identiti
   assert.deepEqual(mergeReadIds(['one', 'legacy'], ['two', 'three'], 3), ['two', 'three', 'one']);
 });
 
-test('selects the newest unread notification for dashboard replay', () => {
+test('opens one unread notification on Dashboard and several in the notification list', () => {
   const notifications = [
     ['newest', '2026-07-30T21:00:00.000Z'],
     ['next', '2026-07-30T20:00:00.000Z'],
@@ -103,8 +103,22 @@ test('selects the newest unread notification for dashboard replay', () => {
     sent_at,
   }));
 
-  assert.equal(newestUnreadNotification(notifications, ['newest'])?.id, 'next');
-  assert.equal(newestUnreadNotification(notifications, ['newest', 'next', 'oldest']), null);
+  assert.deepEqual(pendingNotificationPresentation(notifications, ['newest', 'next']), {
+    destination: 'dashboard',
+    overlay: notifications[2],
+  });
+  assert.deepEqual(pendingNotificationPresentation(notifications, ['newest']), {
+    destination: 'notifications',
+    overlay: null,
+  });
+  assert.deepEqual(pendingNotificationPresentation(notifications.slice(0, 1), [], 2), {
+    destination: 'notifications',
+    overlay: null,
+  });
+  assert.deepEqual(pendingNotificationPresentation(notifications, ['newest', 'next', 'oldest']), {
+    destination: null,
+    overlay: null,
+  });
 });
 
 test('maps breaker urgency to the existing dashboard overlay tones', () => {
