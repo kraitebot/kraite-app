@@ -4,7 +4,7 @@ import { Animated, Image, LayoutAnimation, Pressable, StyleSheet, Text, View } f
 
 import { PositionHistory } from '../api/types';
 import { money, percent } from '../dashboard/formatters';
-import { historyClosedAgo, historyDuration, historyToken } from '../positions/presentation';
+import { historyClosedAgo, historyDuration, historyIsHighProfit, historyToken } from '../positions/presentation';
 import { useTheme } from '../theme/ThemeContext';
 import { fonts, radius, spacing } from '../theme/tokens';
 
@@ -53,6 +53,7 @@ export function PositionHistoryCard({ position, reduceMotion }: {
   const directionColor = long ? palette.green : palette.red;
   const directionTint = long ? palette.greenSoft : palette.redSoft;
   const token = historyToken(position);
+  const highProfit = historyIsHighProfit(position);
 
   const toggleExpanded = () => {
     const next = !expanded;
@@ -76,7 +77,7 @@ export function PositionHistoryCard({ position, reduceMotion }: {
       <Pressable
         onPress={toggleExpanded}
         accessibilityRole="button"
-        accessibilityLabel={`${token} completed position`}
+        accessibilityLabel={`${token} completed position${highProfit ? ', high-profit' : ''}`}
         accessibilityHint={expanded ? 'Collapses position history details' : 'Expands position history details'}
         accessibilityState={{ expanded }}
         style={({ pressed }) => [styles.summary, pressed && styles.pressed]}
@@ -90,6 +91,11 @@ export function PositionHistoryCard({ position, reduceMotion }: {
             <View style={styles.nameRow}>
               <Text style={[styles.token, { color: palette.text }]}>{token}</Text>
               {position.token_name ? <Text numberOfLines={1} style={[styles.tokenName, { color: palette.textSoft }]}>{position.token_name}</Text> : null}
+              {highProfit ? (
+                <View style={[styles.highProfitBadge, { backgroundColor: palette.amberSoft }]}>
+                  <Text style={[styles.highProfitText, { color: palette.amber }]}>HIGH-PROFIT</Text>
+                </View>
+              ) : null}
             </View>
             <View style={styles.metaRow}>
               <Text style={[styles.direction, { color: directionColor, backgroundColor: directionTint }]}>{long ? '↑' : '↓'} {position.direction} {position.leverage}×</Text>
@@ -164,6 +170,8 @@ const styles = StyleSheet.create({
   nameRow: { flexDirection: 'row', alignItems: 'baseline', gap: 6 },
   token: { fontFamily: fonts.monoBold, fontSize: 17 },
   tokenName: { flex: 1, fontFamily: fonts.regular, fontSize: 11.5 },
+  highProfitBadge: { flexShrink: 0, alignSelf: 'center', marginLeft: 'auto', borderRadius: radius.pill, paddingHorizontal: 7, paddingVertical: 4 },
+  highProfitText: { fontFamily: fonts.monoBold, fontSize: 7.5, letterSpacing: 0.55 },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
   direction: { fontFamily: fonts.monoBold, fontSize: 9, letterSpacing: 0.35, paddingHorizontal: 7, paddingVertical: 4, borderRadius: radius.pill, overflow: 'hidden' },
   closedAgo: { fontFamily: fonts.mono, fontSize: 9 },

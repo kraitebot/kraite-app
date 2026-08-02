@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
   historyClosedAgo,
   historyDuration,
+  historyIsHighProfit,
   historyPositionsForFilter,
   historyToken,
   historyWinRate,
@@ -45,4 +46,10 @@ test('formats closed age and token fallback without invalid dates leaking into c
   assert.equal(historyClosedAgo('not-a-date', now), 'Closed');
   assert.equal(historyToken({ token: 'ETH', symbol: 'ETHUSDT' }), 'ETH');
   assert.equal(historyToken({ token: null, symbol: 'SOLUSDT' }), 'SOL');
+});
+
+test('marks only closed WAP-adjusted positions as high-profit', () => {
+  assert.equal(historyIsHighProfit({ was_waped: true, closed_at: '2026-08-02T10:00:00Z' }), true);
+  assert.equal(historyIsHighProfit({ was_waped: true, closed_at: null }), false);
+  assert.equal(historyIsHighProfit({ was_waped: false, closed_at: '2026-08-02T10:00:00Z' }), false);
 });

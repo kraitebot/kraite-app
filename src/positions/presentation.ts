@@ -46,3 +46,9 @@ export function historyToken(position: Pick<PositionHistory, 'token' | 'symbol'>
   if (position.token) return position.token;
   return position.symbol.replace(/(?:USDT|USDC|USD)$/u, '') || position.symbol;
 }
+
+export function historyIsHighProfit(
+  position: Pick<PositionHistory, 'was_waped' | 'closed_at'>,
+): boolean {
+  return position.was_waped && position.closed_at !== null;
+}
