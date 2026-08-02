@@ -2,6 +2,15 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.13.1] — 2026-08-02
+
+### Compact BTC dashboard tile
+
+- [IMPROVED] BTC market context now fits in one horizontal dashboard row with
+  the icon, exact price, four-hour sparkline, and four timeframe signals.
+- [PRESERVED] The tile continues using the existing dashboard refresh and
+  exchange-precision price formatting.
+
 ## [0.13.0] — 2026-08-02
 
 ### BTC market context on Dashboard

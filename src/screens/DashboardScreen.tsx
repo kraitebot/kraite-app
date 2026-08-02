@@ -129,46 +129,31 @@ function BtcMarketCard({ btc }: { btc: BtcSummary }) {
 
   return (
     <View style={[styles.btcCard, { backgroundColor: palette.panel, borderColor: palette.line }]}>
-      <View style={styles.btcTop}>
-        {btc.image
-          ? <Image source={{ uri: btc.image }} style={styles.btcImage} />
-          : <View style={[styles.btcImageFallback, { backgroundColor: palette.amberSoft }]}><Ionicons name="logo-bitcoin" size={24} color={palette.amber} /></View>}
-        <View style={styles.btcIdentity}>
-          <Text style={[styles.btcToken, { color: palette.text }]}>{btc.token}</Text>
-          <Text style={[styles.btcName, { color: palette.textSoft }]}>{btc.name}</Text>
-        </View>
-        <View
-          style={styles.btcSignals}
-          accessible
-          accessibilityLabel={signals.map((signal) => `${signal.timeframe} ${signal.direction}`).join(', ')}
-        >
-          {signals.map((signal) => <View
-            key={signal.timeframe}
-            style={[styles.btcSignal, {
-              backgroundColor: signal.direction === 'up'
-                ? palette.green
-                : signal.direction === 'down'
-                  ? palette.red
-                  : palette.textFaint,
-            }]}
-          />)}
-        </View>
+      {btc.image
+        ? <Image source={{ uri: btc.image }} style={styles.btcImage} />
+        : <View style={[styles.btcImageFallback, { backgroundColor: palette.amberSoft }]}><Ionicons name="logo-bitcoin" size={22} color={palette.amber} /></View>}
+      <View style={styles.btcIdentity}>
+        <Text style={[styles.btcToken, { color: palette.text }]}>{btc.token}</Text>
+        <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.btcPrice, { color: palette.text }]}>{exactUsdPrice(btc.mark)}</Text>
       </View>
-
-      <View style={styles.btcPriceRow}>
-        <View style={styles.btcPriceCopy}>
-          <Text style={[styles.btcPriceLabel, { color: palette.textFaint }]}>CURRENT PRICE</Text>
-          <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.btcPrice, { color: palette.text }]}>{exactUsdPrice(btc.mark)}</Text>
-        </View>
-        <Text style={[styles.btcWindow, { color: accent, backgroundColor: rising ? palette.greenSoft : palette.redSoft }]}>4H TREND</Text>
+      <View style={styles.btcSpark}>
+        <Sparkline values={spark} color={accent} height={32} />
       </View>
-
-      <View style={[styles.btcChart, { backgroundColor: palette.canvasRaised }]}>
-        <Sparkline values={spark} color={accent} height={62} />
-        <View style={styles.btcChartLabels}>
-          <Text style={[styles.btcChartLabel, { color: palette.textFaint }]}>4H AGO</Text>
-          <Text style={[styles.btcChartLabel, { color: palette.textFaint }]}>NOW</Text>
-        </View>
+      <View
+        style={styles.btcSignals}
+        accessible
+        accessibilityLabel={signals.map((signal) => `${signal.timeframe} ${signal.direction}`).join(', ')}
+      >
+        {signals.map((signal) => <View
+          key={signal.timeframe}
+          style={[styles.btcSignal, {
+            backgroundColor: signal.direction === 'up'
+              ? palette.green
+              : signal.direction === 'down'
+                ? palette.red
+                : palette.textFaint,
+          }]}
+        />)}
       </View>
     </View>
   );
@@ -587,23 +572,15 @@ const styles = StyleSheet.create({
   bscsSignalValue: { fontFamily: fonts.monoBold, fontSize: 12.5, lineHeight: 16, marginLeft: 'auto' },
   bscsSignalChip: { borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 3, width: 58, alignItems: 'center' },
   bscsSignalChipText: { fontFamily: fonts.monoBold, fontSize: 9, lineHeight: 11, letterSpacing: 0.8 },
-  btcCard: { width: '100%', borderWidth: 1, borderRadius: radius.card, padding: spacing(1.5), gap: spacing(1.5), overflow: 'hidden' },
-  btcTop: { flexDirection: 'row', alignItems: 'center', gap: spacing(1) },
-  btcImage: { width: 42, height: 42, borderRadius: 21 },
-  btcImageFallback: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
-  btcIdentity: { flex: 1, gap: 2 },
-  btcToken: { fontFamily: fonts.monoBold, fontSize: 17, lineHeight: 21 },
-  btcName: { fontFamily: fonts.regular, fontSize: 12.5, lineHeight: 16 },
-  btcSignals: { flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start', paddingTop: 4 },
+  btcCard: { width: '100%', minHeight: 66, borderWidth: 1, borderRadius: radius.card, paddingHorizontal: spacing(1.25), paddingVertical: spacing(1), flexDirection: 'row', alignItems: 'center', gap: spacing(1), overflow: 'hidden' },
+  btcImage: { width: 38, height: 38, borderRadius: 19 },
+  btcImageFallback: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
+  btcIdentity: { width: 96, minWidth: 0, gap: 1 },
+  btcToken: { fontFamily: fonts.monoBold, fontSize: 15.5, lineHeight: 19 },
+  btcPrice: { fontFamily: fonts.monoBold, fontSize: 13, lineHeight: 17, letterSpacing: -0.35 },
+  btcSpark: { flex: 1, minWidth: 58, height: 32 },
+  btcSignals: { flexDirection: 'row', alignItems: 'center', gap: 4, flexShrink: 0 },
   btcSignal: { width: 7, height: 7, borderRadius: 4 },
-  btcPriceRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: spacing(1) },
-  btcPriceCopy: { flex: 1, minWidth: 0 },
-  btcPriceLabel: { fontFamily: fonts.monoBold, fontSize: 9, lineHeight: 12, letterSpacing: 1.1 },
-  btcPrice: { fontFamily: fonts.monoBold, fontSize: 28, lineHeight: 34, letterSpacing: -1.1, marginTop: 3 },
-  btcWindow: { fontFamily: fonts.monoBold, fontSize: 9, lineHeight: 12, letterSpacing: 0.8, borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 5, overflow: 'hidden' },
-  btcChart: { borderRadius: radius.control, paddingHorizontal: spacing(1.25), paddingTop: spacing(1), paddingBottom: spacing(0.75) },
-  btcChartLabels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 2 },
-  btcChartLabel: { fontFamily: fonts.monoBold, fontSize: 8, lineHeight: 10, letterSpacing: 0.8 },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing(1.5) },
   sectionTitle: { fontFamily: fonts.display, fontSize: 23, letterSpacing: -0.7 },
   sectionCopy: { fontFamily: fonts.regular, fontSize: 12.5, marginTop: 3 },
