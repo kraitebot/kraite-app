@@ -2,6 +2,15 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.14.0] — 2026-08-02
+
+### Trader-day BTC context
+
+- [NEW] The BTC dashboard tile shows compact `TODAY ±x.xx%` context from the
+  trader's configured reporting day.
+- [IMPROVED] The sparkline color now follows the API's four-hour direction
+  signal, and the tile has wider horizontal breathing room.
+
 ## [0.13.2] — 2026-08-02
 
 ### Even BTC dashboard spacing

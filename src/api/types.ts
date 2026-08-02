@@ -177,6 +177,7 @@ export type BtcSummary = {
   name: string;
   image: string | null;
   mark: string | null;
+  day_change_pct: string | null;
   spark_4h: number[];
   dots: TimeframeDot[];
 };

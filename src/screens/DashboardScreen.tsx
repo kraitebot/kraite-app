@@ -123,9 +123,19 @@ function OpenPositionsKpi({ kpis }: { kpis: DashboardKpis }) {
 function BtcMarketCard({ btc }: { btc: BtcSummary }) {
   const { palette } = useTheme();
   const spark = btc.spark_4h.filter(Number.isFinite);
-  const rising = spark.length < 2 || spark[spark.length - 1]! >= spark[0]!;
-  const accent = rising ? palette.green : palette.red;
   const signals = btc.dots.slice(0, 4);
+  const fourHourDirection = btc.dots.find((signal) => signal.timeframe === '4h')?.direction;
+  const accent = fourHourDirection === 'up'
+    ? palette.green
+    : fourHourDirection === 'down'
+      ? palette.red
+      : palette.textFaint;
+  const dayChange = btc.day_change_pct === null ? null : Number(btc.day_change_pct);
+  const dayChangeColor = dayChange === null || !Number.isFinite(dayChange) || dayChange === 0
+    ? palette.textFaint
+    : dayChange > 0
+      ? palette.green
+      : palette.red;
 
   return (
     <View style={[styles.btcCard, { backgroundColor: palette.panel, borderColor: palette.line }]}>
@@ -135,6 +145,7 @@ function BtcMarketCard({ btc }: { btc: BtcSummary }) {
       <View style={styles.btcIdentity}>
         <Text style={[styles.btcToken, { color: palette.text }]}>{btc.token}</Text>
         <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.btcPrice, { color: palette.text }]}>{exactUsdPrice(btc.mark)}</Text>
+        <Text style={[styles.btcDayChange, { color: dayChangeColor }]}>TODAY {percent(btc.day_change_pct)}</Text>
       </View>
       <View style={styles.btcSpark}>
         <Sparkline values={spark} color={accent} height={32} />
@@ -572,12 +583,13 @@ const styles = StyleSheet.create({
   bscsSignalValue: { fontFamily: fonts.monoBold, fontSize: 12.5, lineHeight: 16, marginLeft: 'auto' },
   bscsSignalChip: { borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 3, width: 58, alignItems: 'center' },
   bscsSignalChipText: { fontFamily: fonts.monoBold, fontSize: 9, lineHeight: 11, letterSpacing: 0.8 },
-  btcCard: { width: '100%', minHeight: 66, borderWidth: 1, borderRadius: radius.card, paddingHorizontal: spacing(1.25), paddingVertical: spacing(1), flexDirection: 'row', alignItems: 'center', gap: spacing(1), overflow: 'hidden' },
+  btcCard: { width: '100%', minHeight: 66, borderWidth: 1, borderRadius: radius.card, paddingHorizontal: spacing(2), paddingVertical: spacing(1), flexDirection: 'row', alignItems: 'center', gap: spacing(1), overflow: 'hidden' },
   btcImage: { width: 38, height: 38, borderRadius: 19 },
   btcImageFallback: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
-  btcIdentity: { flexShrink: 0, gap: 1 },
+  btcIdentity: { flexShrink: 0 },
   btcToken: { fontFamily: fonts.monoBold, fontSize: 15.5, lineHeight: 19 },
   btcPrice: { fontFamily: fonts.monoBold, fontSize: 13, lineHeight: 17, letterSpacing: -0.35 },
+  btcDayChange: { fontFamily: fonts.monoBold, fontSize: 9.5, lineHeight: 12, letterSpacing: 0.1 },
   btcSpark: { flex: 1, minWidth: 58, height: 32 },
   btcSignals: { flexDirection: 'row', alignItems: 'center', gap: 4, flexShrink: 0 },
   btcSignal: { width: 7, height: 7, borderRadius: 4 },
