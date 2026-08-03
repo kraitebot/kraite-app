@@ -73,9 +73,9 @@ export function PositionCard({ position, reduceMotion }: { position: Position; r
         </View>
 
         <View style={[styles.positionQuickMetrics, { backgroundColor: palette.panel, borderColor: palette.line }]}>
-          <CompactMetric label={POSITION_LABELS.pnl} value={money(position.pnl)} color={pnl >= 0 ? palette.green : palette.red} accentColor={pnl >= 0 ? palette.green : palette.red} borderRight borderBottom />
+          <CompactMetric label={POSITION_LABELS.alphaLimit} value={percent(position.alpha_limit_pct, false)} color={palette.text} accentColor={palette.amber} borderRight borderBottom />
           <CompactMetric label={POSITION_LABELS.alphaPath} value={percent(position.alpha_path_pct, false)} color={accent} accentColor={accent} borderBottom />
-          <CompactMetric label={POSITION_LABELS.alphaLimit} value={percent(position.alpha_limit_pct, false)} color={palette.text} accentColor={palette.amber} borderRight />
+          <CompactMetric label={POSITION_LABELS.pnl} value={money(position.pnl)} color={pnl >= 0 ? palette.green : palette.red} accentColor={pnl >= 0 ? palette.green : palette.red} borderRight />
           <CompactMetric label={nextTargetLabel} value={nextTargetPrice ?? '—'} color={nextTargetLabel === POSITION_LABELS.stopLoss ? palette.red : palette.text} accentColor={nextTargetLabel === POSITION_LABELS.stopLoss ? palette.red : palette.textSoft} />
         </View>
       </Pressable>
