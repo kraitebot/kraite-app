@@ -14,6 +14,7 @@ export const POSITION_LABELS = Object.freeze({
   nextLimit: 'NEXT',
   stopLoss: 'SL',
   size: 'SIZE',
+  maxPain: 'MAX PAIN',
 } as const);
 
 export type PositionTrackMarker = {

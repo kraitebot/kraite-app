@@ -1,7 +1,15 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { btcDayChangeTone, exactUsdPrice } from './formatters.ts';
+import { btcDayChangeTone, exactUsdPrice, lossMoney } from './formatters.ts';
+
+test('shows maximum pain as a loss without trusting the stored sign', () => {
+  assert.equal(lossMoney('151.7954'), '−$151.80');
+  assert.equal(lossMoney('-151.7954'), '−$151.80');
+  assert.equal(lossMoney('0'), '−$0.00');
+  assert.equal(lossMoney(null), '—');
+  assert.equal(lossMoney('not-a-number'), '—');
+});
 
 test('groups an exchange-formatted BTC price without losing its exact decimals', () => {
   assert.equal(exactUsdPrice('68234.56'), '$68,234.56');

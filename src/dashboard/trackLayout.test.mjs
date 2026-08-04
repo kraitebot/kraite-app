@@ -14,6 +14,7 @@ test('keeps the position tile vocabulary coherent', () => {
     nextLimit: 'NEXT',
     stopLoss: 'SL',
     size: 'SIZE',
+    maxPain: 'MAX PAIN',
   });
 });
 

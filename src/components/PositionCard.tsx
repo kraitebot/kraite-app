@@ -3,7 +3,7 @@ import React, { useRef, useState } from 'react';
 import { Animated, Image, LayoutAnimation, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Position } from '../api/types';
-import { money, percent } from '../dashboard/formatters';
+import { lossMoney, money, percent } from '../dashboard/formatters';
 import { positionNextTarget, POSITION_LABELS, positionTrackMarkers } from '../dashboard/trackLayout';
 import { useTheme } from '../theme/ThemeContext';
 import { fonts, radius, spacing } from '../theme/tokens';
@@ -129,6 +129,9 @@ export function PositionCard({ position, reduceMotion }: { position: Position; r
         </View>
         <View style={styles.positionFooter}>
           <Text style={[styles.footerSize, { color: palette.textFaint }]}>{POSITION_LABELS.size} {money(position.size)}</Text>
+          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} style={[styles.footerMaxPain, { color: palette.red }]}>
+            <Text style={{ color: palette.textFaint }}>{POSITION_LABELS.maxPain} </Text>{lossMoney(position.max_pain_formatted ?? position.max_pain)}
+          </Text>
           <Text style={[styles.footerPnl, { color: pnl >= 0 ? palette.green : palette.red }]}>{money(position.pnl)}</Text>
         </View>
       </View> : null}
@@ -236,6 +239,7 @@ const styles = StyleSheet.create({
   textCenter: { textAlign: 'center' },
   textRight: { textAlign: 'right' },
   positionFooter: { marginTop: spacing(1.5), flexDirection: 'row', justifyContent: 'space-between' },
-  footerSize: { fontFamily: fonts.mono, fontSize: 10.5 },
-  footerPnl: { fontFamily: fonts.monoBold, fontSize: 15 },
+  footerSize: { flex: 1, fontFamily: fonts.mono, fontSize: 10.5 },
+  footerMaxPain: { flex: 1.4, textAlign: 'center', fontFamily: fonts.monoBold, fontSize: 10.5 },
+  footerPnl: { flex: 1, textAlign: 'right', fontFamily: fonts.monoBold, fontSize: 15 },
 });

@@ -212,6 +212,8 @@ export type Position = {
   alpha_limit_pct: string;
   size: string | null;
   pnl: string | number | null;
+  max_pain: string | null;
+  max_pain_formatted?: string | null;
   filled_count: number;
   total_limits: number;
   track: PositionTrack | null;
