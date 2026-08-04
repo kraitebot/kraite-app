@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
   buildProjectionMonth,
   projectionCapitalMilestones,
+  projectionCalendarAmount,
   projectionCompactMoney,
   projectionDailyRate,
   projectionDayBasisLabel,
@@ -71,6 +72,18 @@ test('keeps scenario, month navigation, and labels aligned with admin semantics'
   assert.equal(projectionDailyRate('0.010000'), '+1.00% / day');
   assert.equal(projectionCompactMoney(10.1), '+$10.10');
   assert.equal(projectionCompactMoney(-1532), '−$1.5K');
+});
+
+test('fits calendar amounts from cents through scientific extremes', () => {
+  assert.equal(projectionCalendarAmount(5.77), '5.77');
+  assert.equal(projectionCalendarAmount(-5.77), '−5.77');
+  assert.equal(projectionCalendarAmount(1234), '1.2K');
+  assert.equal(projectionCalendarAmount(1_234_567), '1.2M');
+  assert.equal(projectionCalendarAmount(1_234_567_890), '1.2B');
+  assert.equal(projectionCalendarAmount(1_234_567_890_123), '1.2T');
+  assert.equal(projectionCalendarAmount(1e15), '1e15');
+  assert.equal(projectionCalendarAmount(Number.MAX_VALUE), '1.8e308');
+  assert.equal(projectionCalendarAmount(null), '—');
 });
 
 test('formats exact yearly values without converting enormous wallets to infinity', () => {

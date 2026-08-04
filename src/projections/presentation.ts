@@ -371,6 +371,33 @@ export function projectionCompactMoney(value: number | null): string {
   return `${sign}$${absolute.toFixed(0)}`;
 }
 
+export function projectionCalendarAmount(value: number | null): string {
+  if (value === null || !Number.isFinite(value)) return '—';
+
+  const sign = value < 0 ? '−' : '';
+  const absolute = Math.abs(value);
+
+  if (absolute < 999.5) return `${sign}${absolute.toFixed(2)}`;
+
+  const suffixes = ['', 'K', 'M', 'B', 'T'] as const;
+  let exponent = Math.max(1, Math.floor(Math.log10(absolute) / 3));
+  let scaled = absolute / Math.pow(1000, exponent);
+
+  if (Number(scaled.toFixed(1)) >= 1000) {
+    exponent += 1;
+    scaled = absolute / Math.pow(1000, exponent);
+  }
+
+  if (exponent >= suffixes.length) {
+    const scientific = absolute.toExponential(1)
+      .replace('.0e', 'e')
+      .replace('e+', 'e');
+    return `${sign}${scientific}`;
+  }
+
+  return `${sign}${scaled.toFixed(1).replace(/\.0$/, '')}${suffixes[exponent]}`;
+}
+
 export function projectionPercent(value: string | number | null): string {
   const decimal = projectionDecimal(value);
   if (!decimal) return '—';

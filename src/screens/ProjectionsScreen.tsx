@@ -30,6 +30,7 @@ import { ACCOUNT_KEY } from '../dashboard/preferences';
 import {
   buildProjectionMonth,
   PROJECTION_SCENARIOS,
+  projectionCalendarAmount,
   projectionCapitalMilestones,
   projectionCompactMoney,
   projectionDailyRate,
@@ -272,7 +273,7 @@ function DailyCalendar({ calendar, scenario, onShift }: {
                   minimumFontScale={0.82}
                   style={[styles.dayAmount, { color: amountColor }]}
                 >
-                  {showAmount ? projectionCompactMoney(day.amount) : ''}
+                  {showAmount ? projectionCalendarAmount(day.amount) : ''}
                 </Text>
               </View>
             </View>
@@ -785,7 +786,7 @@ const styles = StyleSheet.create({
   dayCell: { width: '14.2857%', height: 58, padding: 2 },
   dayCellFilled: { flex: 1, borderWidth: StyleSheet.hairlineWidth, borderRadius: 9, paddingHorizontal: 2, paddingVertical: 5, justifyContent: 'space-between' },
   dayNumberRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  dayNumber: { fontFamily: fonts.monoBold, fontSize: 8.5 },
+  dayNumber: { fontFamily: fonts.monoBold, fontSize: 12, lineHeight: 14 },
   projectedDot: { width: 3.5, height: 3.5, borderRadius: 2 },
   dayAmount: { width: '100%', textAlign: 'center', fontFamily: fonts.monoBold, fontSize: 11, letterSpacing: -0.45 },
   calendarLegend: { minHeight: 46, borderTopWidth: StyleSheet.hairlineWidth, paddingHorizontal: spacing(1.5), flexDirection: 'row', alignItems: 'center', gap: spacing(1.25) },
