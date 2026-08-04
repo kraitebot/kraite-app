@@ -253,28 +253,28 @@ function DailyCalendar({ calendar, scenario, onShift }: {
             : (day.amount ?? 0) > 0 ? palette.green : (day.amount ?? 0) < 0 ? palette.red : palette.textFaint;
           const showAmount = day.kind !== 'empty' && !(isProjected && month.rate === null);
           return (
-            <View
-              key={day.day}
-              style={[
-                styles.dayCell,
-                styles.dayCellFilled,
-                { borderColor: isToday ? palette.green : palette.line },
-                isProjected && { backgroundColor: scenarioSoftColor(palette, scenario) },
-                isToday && { borderWidth: 1.5 },
-              ]}
-            >
-              <View style={styles.dayNumberRow}>
-                <Text style={[styles.dayNumber, { color: isToday ? palette.green : palette.textSoft }]}>{day.day}</Text>
-                {isProjected ? <View style={[styles.projectedDot, { backgroundColor: scenarioTone }]} /> : null}
-              </View>
-              <Text
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                minimumFontScale={0.82}
-                style={[styles.dayAmount, { color: amountColor }]}
+            <View key={day.day} style={styles.dayCell}>
+              <View
+                style={[
+                  styles.dayCellFilled,
+                  { borderColor: isToday ? palette.green : palette.line },
+                  isProjected && { backgroundColor: scenarioSoftColor(palette, scenario) },
+                  isToday && { borderWidth: 1.5 },
+                ]}
               >
-                {showAmount ? projectionCompactMoney(day.amount) : ''}
-              </Text>
+                <View style={styles.dayNumberRow}>
+                  <Text style={[styles.dayNumber, { color: isToday ? palette.green : palette.textSoft }]}>{day.day}</Text>
+                  {isProjected ? <View style={[styles.projectedDot, { backgroundColor: scenarioTone }]} /> : null}
+                </View>
+                <Text
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.82}
+                  style={[styles.dayAmount, { color: amountColor }]}
+                >
+                  {showAmount ? projectionCompactMoney(day.amount) : ''}
+                </Text>
+              </View>
             </View>
           );
         })}
@@ -782,8 +782,8 @@ const styles = StyleSheet.create({
   weekRow: { height: 34, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 7 },
   weekday: { width: '14.2857%', textAlign: 'center', fontFamily: fonts.monoBold, fontSize: 8.5 },
   dayGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 7, paddingBottom: 7 },
-  dayCell: { width: '14.2857%', height: 58 },
-  dayCellFilled: { borderWidth: StyleSheet.hairlineWidth, borderRadius: 9, paddingHorizontal: 2, paddingVertical: 5, justifyContent: 'space-between' },
+  dayCell: { width: '14.2857%', height: 58, padding: 2 },
+  dayCellFilled: { flex: 1, borderWidth: StyleSheet.hairlineWidth, borderRadius: 9, paddingHorizontal: 2, paddingVertical: 5, justifyContent: 'space-between' },
   dayNumberRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   dayNumber: { fontFamily: fonts.monoBold, fontSize: 8.5 },
   projectedDot: { width: 3.5, height: 3.5, borderRadius: 2 },
