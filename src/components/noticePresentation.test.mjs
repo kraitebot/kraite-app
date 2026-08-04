@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { NOTICE_OVERLAY_PLACEMENT, NOTICE_TONE_ICONS } from './noticePresentation.ts';
+import {
+  NOTICE_OVERLAY_PLACEMENT,
+  NOTICE_TONE_ICONS,
+  noticeSwipeShouldDismiss,
+} from './noticePresentation.ts';
 
 test('keeps every notice outside the screen layout flow', () => {
   assert.deepEqual(NOTICE_OVERLAY_PLACEMENT, {
@@ -22,4 +26,14 @@ test('supports every notification tone through the same overlay', () => {
     info: 'information-circle-outline',
     success: 'checkmark-circle-outline',
   });
+});
+
+test('dismisses notice swipes in every direction by distance or velocity', () => {
+  assert.equal(noticeSwipeShouldDismiss(64, 0, 0, 0), true);
+  assert.equal(noticeSwipeShouldDismiss(-64, 0, 0, 0), true);
+  assert.equal(noticeSwipeShouldDismiss(0, 64, 0, 0), true);
+  assert.equal(noticeSwipeShouldDismiss(0, -64, 0, 0), true);
+  assert.equal(noticeSwipeShouldDismiss(46, 46, 0, 0), true);
+  assert.equal(noticeSwipeShouldDismiss(12, 8, -0.7, 0), true);
+  assert.equal(noticeSwipeShouldDismiss(20, 20, 0.2, -0.2), false);
 });

@@ -32,7 +32,7 @@ import { PositionCard } from '../components/PositionCard';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { NoticeOverlay } from '../components/ScreenState';
 import { bscsNarrative, formatBscsCadenceLine, formatBscsComponentValue, formatBscsPauseLine, formatBscsPositionCap, visibleBscsComponents } from '../dashboard/bscsPresentation';
-import { exactUsdPrice, money, percent } from '../dashboard/formatters';
+import { btcDayChangeTone, exactUsdPrice, money, percent } from '../dashboard/formatters';
 import { lastPositionClosedLabel } from '../dashboard/positionTimeline';
 import { ACCOUNT_KEY, AUTO_REFRESH_KEY } from '../dashboard/preferences';
 import { shouldAutoRefresh } from '../dashboard/refreshPolicy';
@@ -124,18 +124,12 @@ function BtcMarketCard({ btc }: { btc: BtcSummary }) {
   const { palette } = useTheme();
   const spark = btc.spark_4h.filter(Number.isFinite);
   const signals = btc.dots.slice(0, 4);
-  const fourHourDirection = btc.dots.find((signal) => signal.timeframe === '4h')?.direction;
-  const accent = fourHourDirection === 'up'
+  const dayChangeTone = btcDayChangeTone(btc.day_change_pct);
+  const dayChangeColor = dayChangeTone === 'positive'
     ? palette.green
-    : fourHourDirection === 'down'
+    : dayChangeTone === 'negative'
       ? palette.red
-      : palette.textFaint;
-  const dayChange = btc.day_change_pct === null ? null : Number(btc.day_change_pct);
-  const dayChangeColor = dayChange === null || !Number.isFinite(dayChange) || dayChange === 0
-    ? palette.textFaint
-    : dayChange > 0
-      ? palette.green
-      : palette.red;
+      : palette.textSoft;
 
   return (
     <View style={[styles.btcCard, { backgroundColor: palette.panel, borderColor: palette.line }]}>
@@ -148,7 +142,7 @@ function BtcMarketCard({ btc }: { btc: BtcSummary }) {
         <Text style={[styles.btcDayChange, { color: dayChangeColor }]}>TODAY {percent(btc.day_change_pct)}</Text>
       </View>
       <View style={styles.btcSpark}>
-        <Sparkline values={spark} color={accent} height={32} />
+        <Sparkline values={spark} color={dayChangeColor} height={32} />
       </View>
       <View
         style={styles.btcSignals}
@@ -501,6 +495,7 @@ export function DashboardScreen() {
         message={overlay.body}
         icon="notifications-outline"
         onDismiss={dismissOverlay}
+        swipeToDismiss
       /> : null}
 
       {error && !overlay ? <NoticeOverlay

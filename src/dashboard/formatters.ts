@@ -13,6 +13,15 @@ export function percent(value: string | number | null, signed = true): string {
   return `${signed && number > 0 ? '+' : ''}${number.toFixed(2)}%`;
 }
 
+export type BtcDayChangeTone = 'positive' | 'negative' | 'neutral';
+
+export function btcDayChangeTone(value: string | null): BtcDayChangeTone {
+  const dayChange = value === null ? null : Number(value);
+  if (dayChange === null || !Number.isFinite(dayChange) || dayChange === 0) return 'neutral';
+
+  return dayChange > 0 ? 'positive' : 'negative';
+}
+
 export function exactUsdPrice(value: string | null): string {
   if (value === null || !/^-?\d+(?:\.\d+)?$/.test(value)) return '—';
 

@@ -358,6 +358,11 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     void Notifications.setBadgeCountAsync(unreadCount).catch(() => undefined);
   }, [readyUserId, unreadCount, user]);
 
+  const dismissOverlay = useCallback((): void => {
+    if (overlay) markVisible([overlay.id]);
+    setOverlay(null);
+  }, [markVisible, overlay]);
+
   const value = useMemo<NotificationContextValue>(() => ({
     notifications,
     readIds,
@@ -366,7 +371,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     loading,
     refreshing,
     hasNextPage: nextCursor !== null,
-    dismissOverlay: () => setOverlay(null),
+    dismissOverlay,
     markVisible,
     refresh,
     loadNext,
@@ -378,6 +383,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     loading,
     refreshing,
     nextCursor,
+    dismissOverlay,
     markVisible,
     refresh,
     loadNext,

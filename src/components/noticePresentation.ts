@@ -6,6 +6,15 @@ export const NOTICE_OVERLAY_PLACEMENT = Object.freeze({
   elevation: 1100,
 });
 
+export const NOTICE_SWIPE_ACTIVATION_DISTANCE = 7;
+export const NOTICE_SWIPE_DISMISS_DISTANCE = 64;
+export const NOTICE_SWIPE_DISMISS_VELOCITY = 0.7;
+
+export function noticeSwipeShouldDismiss(dx: number, dy: number, vx: number, vy: number): boolean {
+  return Math.hypot(dx, dy) >= NOTICE_SWIPE_DISMISS_DISTANCE
+    || Math.hypot(vx, vy) >= NOTICE_SWIPE_DISMISS_VELOCITY;
+}
+
 export const NOTICE_TONE_ICONS = Object.freeze({
   error: 'alert-circle-outline',
   warning: 'warning-outline',
