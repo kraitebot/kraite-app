@@ -12,10 +12,35 @@ export const POSITION_LABELS = Object.freeze({
   takeProfit: 'TP',
   currentPrice: 'PX',
   nextLimit: 'NEXT',
+  limitMove: 'LIM',
   stopLoss: 'SL',
   size: 'SIZE',
   maxPain: 'MAX PAIN',
 } as const);
+
+export type PositionMoveIndicator = {
+  text: string;
+  priceDirection: 'up' | 'down';
+};
+
+export function positionMoveIndicator(
+  target: 'take-profit' | 'next-limit',
+  direction: 'LONG' | 'SHORT',
+  distancePercent: string | null | undefined,
+): PositionMoveIndicator | null {
+  if (distancePercent === null || distancePercent === undefined || !/^\d+(?:\.\d+)?$/.test(distancePercent)) return null;
+
+  const priceDirection = target === 'take-profit'
+    ? direction === 'LONG' ? 'up' : 'down'
+    : direction === 'LONG' ? 'down' : 'up';
+  const label = target === 'take-profit' ? POSITION_LABELS.takeProfit : POSITION_LABELS.limitMove;
+  const arrow = priceDirection === 'up' ? '↑' : '↓';
+
+  return {
+    text: `${label} ${arrow} ${distancePercent}%`,
+    priceDirection,
+  };
+}
 
 export type PositionTrackMarker = {
   key: 'tp' | 'px' | 'sl';

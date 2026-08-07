@@ -2,6 +2,16 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.17.0] — 2026-08-08
+
+### Position target movement
+
+- [NEW] Collapsed position cards show the exact percentage and direction still
+  needed to reach the take-profit and next limit targets for LONG and SHORT
+  positions.
+- [PRESERVED] Older API payloads remain compatible when the new distances are
+  unavailable.
+
 ## [0.14.1] — 2026-08-02
 
 ### Trader-day BTC context

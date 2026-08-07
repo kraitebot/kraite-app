@@ -206,7 +206,9 @@ export type Position = {
   entry_label: string;
   entry_price: string | null;
   profit_price: string | null;
+  take_profit_distance_pct?: string | null;
   next_limit_price: string | null;
+  next_limit_distance_pct?: string | null;
   stop_loss_price: string | null;
   alpha_path_pct: string;
   alpha_limit_pct: string;

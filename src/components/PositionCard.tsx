@@ -4,7 +4,7 @@ import { Animated, Image, LayoutAnimation, Pressable, StyleSheet, Text, View } f
 
 import { Position } from '../api/types';
 import { lossMoney, money, percent } from '../dashboard/formatters';
-import { positionNextTarget, POSITION_LABELS, positionTrackMarkers } from '../dashboard/trackLayout';
+import { positionMoveIndicator, positionNextTarget, POSITION_LABELS, positionTrackMarkers } from '../dashboard/trackLayout';
 import { useTheme } from '../theme/ThemeContext';
 import { fonts, radius, spacing } from '../theme/tokens';
 
@@ -22,6 +22,14 @@ export function PositionCard({ position, reduceMotion }: { position: Position; r
   const nextTarget = positionNextTarget(position.next_limit_price, position.stop_loss_price);
   const nextTargetLabel = nextTarget.label;
   const nextTargetPrice = nextTarget.price;
+  const takeProfitMove = positionMoveIndicator('take-profit', position.direction, position.take_profit_distance_pct);
+  const nextLimitMove = position.next_limit_price
+    ? positionMoveIndicator('next-limit', position.direction, position.next_limit_distance_pct)
+    : null;
+  const takeProfitMoveColor = takeProfitMove?.priceDirection === 'up' ? palette.green : palette.red;
+  const takeProfitMoveBackground = takeProfitMove?.priceDirection === 'up' ? palette.greenSoft : palette.redSoft;
+  const nextLimitMoveColor = nextLimitMove?.priceDirection === 'up' ? palette.green : palette.red;
+  const nextLimitMoveBackground = nextLimitMove?.priceDirection === 'up' ? palette.greenSoft : palette.redSoft;
 
   const toggleExpanded = () => {
     const next = !expanded;
@@ -73,10 +81,28 @@ export function PositionCard({ position, reduceMotion }: { position: Position; r
         </View>
 
         <View style={[styles.positionQuickMetrics, { backgroundColor: palette.panel, borderColor: palette.line }]}>
-          <CompactMetric label={POSITION_LABELS.alphaLimit} value={percent(position.alpha_limit_pct, false)} color={palette.text} accentColor={palette.amber} borderRight borderBottom />
+          <CompactMetric
+            label={POSITION_LABELS.alphaLimit}
+            value={percent(position.alpha_limit_pct, false)}
+            color={palette.text}
+            accentColor={palette.amber}
+            indicator={takeProfitMove?.text}
+            indicatorColor={takeProfitMoveColor}
+            indicatorBackground={takeProfitMoveBackground}
+            borderRight
+            borderBottom
+          />
           <CompactMetric label={POSITION_LABELS.alphaPath} value={percent(position.alpha_path_pct, false)} color={accent} accentColor={accent} borderBottom />
           <CompactMetric label={POSITION_LABELS.pnl} value={money(position.pnl)} color={pnl >= 0 ? palette.green : palette.red} accentColor={pnl >= 0 ? palette.green : palette.red} borderRight />
-          <CompactMetric label={nextTargetLabel} value={nextTargetPrice ?? '—'} color={nextTargetLabel === POSITION_LABELS.stopLoss ? palette.red : palette.text} accentColor={nextTargetLabel === POSITION_LABELS.stopLoss ? palette.red : palette.textSoft} />
+          <CompactMetric
+            label={nextTargetLabel}
+            value={nextTargetPrice ?? '—'}
+            color={nextTargetLabel === POSITION_LABELS.stopLoss ? palette.red : palette.text}
+            accentColor={nextTargetLabel === POSITION_LABELS.stopLoss ? palette.red : palette.textSoft}
+            indicator={nextLimitMove?.text}
+            indicatorColor={nextLimitMoveColor}
+            indicatorBackground={nextLimitMoveBackground}
+          />
         </View>
       </Pressable>
 
@@ -139,11 +165,14 @@ export function PositionCard({ position, reduceMotion }: { position: Position; r
   );
 }
 
-function CompactMetric({ label, value, color, accentColor, borderRight, borderBottom }: {
+function CompactMetric({ label, value, color, accentColor, indicator, indicatorColor, indicatorBackground, borderRight, borderBottom }: {
   label: string;
   value: string;
   color: string;
   accentColor: string;
+  indicator?: string;
+  indicatorColor?: string;
+  indicatorBackground?: string;
   borderRight?: boolean;
   borderBottom?: boolean;
 }) {
@@ -158,7 +187,10 @@ function CompactMetric({ label, value, color, accentColor, borderRight, borderBo
       <View style={[styles.compactMetricAccent, { backgroundColor: accentColor }]} />
       <Text numberOfLines={1} style={[styles.compactMetricLabel, { color: palette.textSoft }]}>{label}</Text>
     </View>
-    <Text numberOfLines={1} style={[styles.compactMetricValue, { color }]}>{value}</Text>
+    <View style={styles.compactMetricValueRow}>
+      <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.78} style={[styles.compactMetricValue, { color }]}>{value}</Text>
+      {indicator ? <Text numberOfLines={1} style={[styles.compactMetricIndicator, { color: indicatorColor, backgroundColor: indicatorBackground }]}>{indicator}</Text> : null}
+    </View>
   </View>;
 }
 
@@ -215,7 +247,9 @@ const styles = StyleSheet.create({
   compactMetricHeader: { minHeight: 15, flexDirection: 'row', alignItems: 'center', gap: 7 },
   compactMetricAccent: { width: 3, height: 14, borderRadius: 2 },
   compactMetricLabel: { fontFamily: fonts.monoBold, fontSize: 10.5, lineHeight: 14, letterSpacing: 0.8 },
-  compactMetricValue: { fontFamily: fonts.monoBold, fontSize: 19, lineHeight: 24, letterSpacing: -0.45, width: '100%' },
+  compactMetricValueRow: { width: '100%', minWidth: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 6 },
+  compactMetricValue: { flexShrink: 1, fontFamily: fonts.monoBold, fontSize: 19, lineHeight: 24, letterSpacing: -0.45 },
+  compactMetricIndicator: { flexShrink: 0, fontFamily: fonts.monoBold, fontSize: 8.5, lineHeight: 12, borderRadius: radius.pill, paddingHorizontal: 5, paddingVertical: 2, overflow: 'hidden' },
   positionBody: { padding: spacing(1.5) },
   trackFrame: { height: 48, marginHorizontal: 20, position: 'relative' },
   track: { position: 'absolute', left: 0, right: 0, top: 30, height: 4, borderRadius: radius.pill },

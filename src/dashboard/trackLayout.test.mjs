@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { positionNextTarget, POSITION_LABELS, positionTrackMarkers } from './trackLayout.ts';
+import { positionMoveIndicator, positionNextTarget, POSITION_LABELS, positionTrackMarkers } from './trackLayout.ts';
 
 test('keeps the position tile vocabulary coherent', () => {
   assert.deepEqual(POSITION_LABELS, {
@@ -12,10 +12,24 @@ test('keeps the position tile vocabulary coherent', () => {
     takeProfit: 'TP',
     currentPrice: 'PX',
     nextLimit: 'NEXT',
+    limitMove: 'LIM',
     stopLoss: 'SL',
     size: 'SIZE',
     maxPain: 'MAX PAIN',
   });
+});
+
+test('shows opposite TP and next-limit price moves for long and short positions', () => {
+  assert.deepEqual(positionMoveIndicator('take-profit', 'LONG', '7.00'), { text: 'TP ↑ 7.00%', priceDirection: 'up' });
+  assert.deepEqual(positionMoveIndicator('next-limit', 'LONG', '2.45'), { text: 'LIM ↓ 2.45%', priceDirection: 'down' });
+  assert.deepEqual(positionMoveIndicator('take-profit', 'SHORT', '7.00'), { text: 'TP ↓ 7.00%', priceDirection: 'down' });
+  assert.deepEqual(positionMoveIndicator('next-limit', 'SHORT', '1.50'), { text: 'LIM ↑ 1.50%', priceDirection: 'up' });
+});
+
+test('omits target move indicators when the API has no valid distance', () => {
+  assert.equal(positionMoveIndicator('take-profit', 'LONG', null), null);
+  assert.equal(positionMoveIndicator('take-profit', 'LONG', undefined), null);
+  assert.equal(positionMoveIndicator('next-limit', 'SHORT', 'not-a-number'), null);
 });
 
 test('pairs NEXT and SL labels with their displayed price', () => {
