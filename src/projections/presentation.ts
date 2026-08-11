@@ -307,7 +307,7 @@ export function projectionCapitalMilestones(
 
     if (calendar.scenarios.days_observed < 1 || rate === null) {
       row.date = 'Not enough data';
-      row.detail = 'No observed trading days this month';
+      row.detail = 'No profitable trading days this month';
       return row;
     }
 

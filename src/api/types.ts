@@ -114,6 +114,7 @@ export type DashboardKpis = {
   balance_spark: number[];
   pnl_today: string | null;
   pnl_today_pct: number | null;
+  pnl_yesterday: string | null;
   pnl_30d: string | null;
   pnl_30d_pct: number | null;
   pnl_30d_spark: number[];
@@ -220,6 +221,7 @@ export type Position = {
   total_limits: number;
   track: PositionTrack | null;
   timeframe_dots: TimeframeDot[];
+  spark_4h?: number[];
 };
 
 /**

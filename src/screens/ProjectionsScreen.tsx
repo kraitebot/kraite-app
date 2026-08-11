@@ -283,7 +283,7 @@ function DailyCalendar({ calendar, scenario, onShift }: {
       <View style={[styles.calendarLegend, { borderTopColor: palette.line }]}>
         <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: palette.green }]} /><Text style={[styles.legendText, { color: palette.textSoft }]}>Realized</Text></View>
         <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: scenarioTone }]} /><Text style={[styles.legendText, { color: palette.textSoft }]}>Projected</Text></View>
-        <Text style={[styles.legendNote, { color: palette.textFaint }]}>{calendar.scenarios.days_observed} observed days</Text>
+        <Text style={[styles.legendNote, { color: palette.textFaint }]}>{calendar.scenarios.days_observed} profitable {calendar.scenarios.days_observed === 1 ? 'day' : 'days'}</Text>
       </View>
     </View>
   );
@@ -462,8 +462,8 @@ function YearlyOutlook({ yearly, scenario }: {
   const unavailable = selected.reason === 'no_wallet'
     ? 'A wallet snapshot is needed before yearly compounding can start.'
     : selected.reason === 'invalid_rate'
-      ? 'This observed rate is outside a meaningful compounding range.'
-      : 'More realized trading days are needed to build this outlook.';
+      ? 'This profitable-day rate is outside a meaningful compounding range.'
+      : 'A profitable trading day is needed to build this outlook.';
 
   return (
     <>
@@ -483,7 +483,7 @@ function YearlyOutlook({ yearly, scenario }: {
           </View>
           <View style={styles.portfolioMetric}>
             <Text style={[styles.portfolioMetricValue, { color: palette.text }]}>{yearly.days_observed}</Text>
-            <Text style={[styles.portfolioMetricLabel, { color: palette.textFaint }]}>OBSERVED DAYS</Text>
+            <Text style={[styles.portfolioMetricLabel, { color: palette.textFaint }]}>PROFITABLE DAYS</Text>
           </View>
           <View style={styles.portfolioMetric}>
             <Text style={[styles.portfolioMetricValue, { color: tone }]}>{yearly.outlook.years}</Text>
@@ -710,7 +710,7 @@ export function ProjectionsScreen() {
             <View style={[styles.disclaimer, { backgroundColor: palette.panelStrong, borderColor: palette.line }]}>
               <Ionicons name="information-circle-outline" size={18} color={palette.textSoft} />
               <Text style={[styles.disclaimerText, { color: palette.textSoft }]}>
-                Illustrative only. Rates come from this month’s realized trading days and are compounded as constant; markets and risk controls will change actual results.
+                Illustrative only. Future rates use this month’s profitable trading days; losses stay in realized results. Markets and risk controls will change actual results.
               </Text>
             </View>
           </>

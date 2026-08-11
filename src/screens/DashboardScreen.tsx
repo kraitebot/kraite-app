@@ -21,7 +21,6 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Circle, Defs, LinearGradient as SvgLinearGradient, Line, Path, Stop } from 'react-native-svg';
 
 import { api, ApiError } from '../api/client';
 import { Account, BscsComponent, BscsSummary, BtcSummary, Dashboard, DashboardKpis, DashboardResponse, DayBasisHint } from '../api/types';
@@ -31,6 +30,7 @@ import { BscsSignalSheet } from '../components/BscsSignalSheet';
 import { PositionCard } from '../components/PositionCard';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { NoticeOverlay } from '../components/ScreenState';
+import { Sparkline } from '../components/Sparkline';
 import { bscsNarrative, formatBscsCadenceLine, formatBscsComponentValue, formatBscsPauseLine, formatBscsPositionCap, visibleBscsComponents } from '../dashboard/bscsPresentation';
 import { btcDayChangeTone, exactUsdPrice, money, percent } from '../dashboard/formatters';
 import { lastPositionClosedLabel } from '../dashboard/positionTimeline';
@@ -40,41 +40,6 @@ import { useNotifications } from '../notifications/NotificationContext';
 import { notificationTone } from '../notifications/notificationState';
 import { useTheme } from '../theme/ThemeContext';
 import { fonts, radius, spacing } from '../theme/tokens';
-
-function Sparkline({ values, color, height = 38 }: { values: number[]; color: string; height?: number }) {
-  const recent = values.slice(-18);
-  if (recent.length < 2) return <View style={[styles.sparkEmpty, { height }]} />;
-  const width = 124;
-  const chartTop = 3;
-  const chartBottom = height - 4;
-  const min = Math.min(...recent);
-  const max = Math.max(...recent);
-  const range = Math.max(max - min, 0.0001);
-  const points = recent.map((value, index) => ({
-    x: (index / (recent.length - 1)) * width,
-    y: chartBottom - ((value - min) / range) * (chartBottom - chartTop),
-  }));
-  const line = points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`).join(' ');
-  const area = `${line} L ${width} ${height} L 0 ${height} Z`;
-  const end = points[points.length - 1]!;
-
-  return (
-    <View style={[styles.spark, { height }]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-      <Svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
-        <Defs>
-          <SvgLinearGradient id="spark-area" x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0" stopColor={color} stopOpacity={0.28} />
-            <Stop offset="1" stopColor={color} stopOpacity={0.02} />
-          </SvgLinearGradient>
-        </Defs>
-        <Line x1="0" y1={chartBottom} x2={width} y2={chartBottom} stroke={color} strokeOpacity={0.12} strokeWidth="1" />
-        <Path d={area} fill="url(#spark-area)" />
-        <Path d={line} fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-        <Circle cx={end.x} cy={end.y} r="2.8" fill={color} />
-      </Svg>
-    </View>
-  );
-}
 
 function KpiCard({ label, value, delta, icon, spark, accent }: {
   label: string;
@@ -93,8 +58,8 @@ function KpiCard({ label, value, delta, icon, spark, accent }: {
         <Text style={[styles.kpiLabel, { color: palette.textSoft }]}>{label}</Text>
       </View>
       <View style={styles.kpiValueRow}>
-        <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.kpiValue, { color: palette.text }]}>{value}</Text>
-        {delta ? <Text style={[styles.kpiDelta, { color: tint, backgroundColor: accent === 'red' ? palette.redSoft : palette.greenSoft }]}>{delta}</Text> : null}
+        <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.kpiValue, styles.kpiValueInRow, { color: palette.text }]}>{value}</Text>
+        {delta ? <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.72} style={[styles.kpiDelta, { color: tint, backgroundColor: accent === 'red' ? palette.redSoft : palette.greenSoft }]}>{delta}</Text> : null}
       </View>
       {spark ? <Sparkline values={spark} color={tint} /> : null}
     </View>
@@ -424,7 +389,7 @@ export function DashboardScreen() {
 
   const selected = accounts.find((account) => account.id === selectedId);
   const kpis = dashboard?.kpis;
-  const todayRed = Number(kpis?.pnl_today ?? 0) < 0;
+  const yesterdayRed = Number(kpis?.pnl_yesterday ?? 0) < 0;
   const monthRed = Number(kpis?.pnl_30d ?? 0) < 0;
 
   useEffect(() => {
@@ -461,7 +426,7 @@ export function DashboardScreen() {
         {!loading && kpis ? <>
           <View style={styles.kpiGrid}>
             <KpiCard label="PORTFOLIO VALUE" value={money(kpis.balance)} delta={percent(kpis.balance_delta_24h_pct)} icon="wallet-outline" accent={Number(kpis.balance_delta_24h_pct ?? 0) < 0 ? 'red' : 'green'} />
-            <KpiCard label="P&L · TODAY" value={money(kpis.pnl_today)} delta={percent(kpis.pnl_today_pct)} icon="flash-outline" accent={todayRed ? 'red' : 'green'} />
+            <KpiCard label="P&L · TODAY" value={money(kpis.pnl_today)} delta={`YDAY ${money(kpis.pnl_yesterday)}`} icon="flash-outline" accent={yesterdayRed ? 'red' : 'green'} />
             <KpiCard label="P&L · 30 DAY" value={money(kpis.pnl_30d)} delta={percent(kpis.pnl_30d_pct)} icon="trending-up-outline" spark={kpis.pnl_30d_spark} accent={monthRed ? 'red' : 'green'} />
             <OpenPositionsKpi kpis={kpis} />
           </View>
@@ -539,9 +504,8 @@ const styles = StyleSheet.create({
   kpiLabel: { fontFamily: fonts.monoBold, fontSize: 10.5, lineHeight: 14, letterSpacing: 1.05 },
   kpiValueRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: spacing(1.1) },
   kpiValue: { fontFamily: fonts.monoBold, fontSize: 23, lineHeight: 29, letterSpacing: -1 },
-  kpiDelta: { fontFamily: fonts.monoBold, fontSize: 10, lineHeight: 13, paddingHorizontal: 7, paddingVertical: 4, borderRadius: radius.pill, overflow: 'hidden' },
-  spark: { width: '100%', height: 38, marginTop: 'auto' },
-  sparkEmpty: { height: 38 },
+  kpiValueInRow: { minWidth: 0, flexShrink: 1 },
+  kpiDelta: { minWidth: 0, flexShrink: 1, fontFamily: fonts.monoBold, fontSize: 10, lineHeight: 13, paddingHorizontal: 7, paddingVertical: 4, borderRadius: radius.pill, overflow: 'hidden' },
   splitBar: { flexDirection: 'row', height: 6, gap: 3, marginTop: 'auto' },
   splitLong: { borderRadius: radius.pill },
   splitShort: { borderRadius: radius.pill },

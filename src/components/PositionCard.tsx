@@ -7,6 +7,7 @@ import { lossMoney, money, percent } from '../dashboard/formatters';
 import { positionMoveIndicator, positionNextTarget, POSITION_LABELS, positionTrackMarkers } from '../dashboard/trackLayout';
 import { useTheme } from '../theme/ThemeContext';
 import { fonts, radius, spacing } from '../theme/tokens';
+import { Sparkline } from './Sparkline';
 
 export function PositionCard({ position, reduceMotion }: { position: Position; reduceMotion: boolean }) {
   const { palette } = useTheme();
@@ -61,15 +62,20 @@ export function PositionCard({ position, reduceMotion }: { position: Position; r
           {position.token_image ? <Image source={{ uri: position.token_image }} style={styles.tokenImage} /> : <View style={[styles.tokenFallback, { backgroundColor: palette.canvasRaised }]}><Text style={[styles.tokenFallbackText, { color: palette.text }]}>{(position.token ?? '?').slice(0, 2)}</Text></View>}
           <View style={styles.positionName}>
             <View style={styles.tokenRow}><Text style={[styles.token, { color: palette.text }]}>{position.token ?? position.symbol}</Text><Text numberOfLines={1} style={[styles.tokenName, { color: palette.textSoft }]}>{position.token_name}</Text></View>
-            <View style={styles.positionMeta}>
-              <Text style={[styles.direction, { color: accent, backgroundColor: palette.panel }]}>{long ? '↑' : '↓'} {position.direction} {position.leverage}×</Text>
-              <Ionicons name="time-outline" size={13} color={palette.textSoft} />
-              <Text style={[styles.age, { color: palette.textSoft }]}>{position.age_human ?? 'now'}</Text>
-              <Text style={[styles.filledBadge, {
-                color: hasFilledLimits ? palette.amber : palette.text,
-                backgroundColor: hasFilledLimits ? palette.amberSoft : palette.panel,
-                borderColor: hasFilledLimits ? palette.amber : palette.line,
-              }]}>{POSITION_LABELS.filled} {position.filled_count}/{position.total_limits}</Text>
+            <View style={styles.positionMetaSparkRow}>
+              <View style={styles.positionMeta}>
+                <Text style={[styles.direction, { color: accent, backgroundColor: palette.panel }]}>{long ? '↑' : '↓'} {position.direction} {position.leverage}×</Text>
+                <Ionicons name="time-outline" size={13} color={palette.textSoft} />
+                <Text style={[styles.age, { color: palette.textSoft }]}>{position.age_human ?? 'now'}</Text>
+                <Text style={[styles.filledBadge, {
+                  color: hasFilledLimits ? palette.amber : palette.text,
+                  backgroundColor: hasFilledLimits ? palette.amberSoft : palette.panel,
+                  borderColor: hasFilledLimits ? palette.amber : palette.line,
+                }]}>{POSITION_LABELS.filled} {position.filled_count}/{position.total_limits}</Text>
+              </View>
+              <View style={styles.positionSpark}>
+                <Sparkline values={position.spark_4h ?? []} color={accent} height={24} opacity={0.42} />
+              </View>
             </View>
           </View>
           <View style={styles.positionSignals}>
@@ -232,7 +238,9 @@ const styles = StyleSheet.create({
   tokenRow: { flexDirection: 'row', alignItems: 'baseline', gap: 6 },
   token: { fontFamily: fonts.monoBold, fontSize: 17 },
   tokenName: { fontFamily: fonts.regular, fontSize: 12, flex: 1 },
-  positionMeta: { flexDirection: 'row', alignItems: 'center', gap: 5, flexWrap: 'wrap' },
+  positionMetaSparkRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
+  positionMeta: { flexDirection: 'row', alignItems: 'center', gap: 5, flexShrink: 1, flexWrap: 'wrap' },
+  positionSpark: { flex: 1, minWidth: 44, height: 24 },
   direction: { fontFamily: fonts.monoBold, fontSize: 10, borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 4, overflow: 'hidden' },
   age: { fontFamily: fonts.mono, fontSize: 10 },
   filledBadge: { fontFamily: fonts.monoBold, fontSize: 10, lineHeight: 13, borderWidth: 1, borderRadius: radius.pill, paddingHorizontal: 7, paddingVertical: 3, overflow: 'hidden' },
