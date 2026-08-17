@@ -2,6 +2,14 @@
 
 All notable changes to the Kraite mobile app will be documented here.
 
+## [0.18.1] — 2026-08-17
+
+### Position target indicators
+
+- [IMPROVED] Dashboard position tiles use larger TP and LIM indicators with
+  matching line height and padding, making the target movement pills easier to
+  read.
+
 ## [0.17.0] — 2026-08-08
 
 ### Position target movement

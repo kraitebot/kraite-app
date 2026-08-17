@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
   compactMetricLabel: { fontFamily: fonts.monoBold, fontSize: 10.5, lineHeight: 14, letterSpacing: 0.8 },
   compactMetricValueRow: { width: '100%', minWidth: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 6 },
   compactMetricValue: { flexShrink: 1, fontFamily: fonts.monoBold, fontSize: 19, lineHeight: 24, letterSpacing: -0.45 },
-  compactMetricIndicator: { flexShrink: 0, fontFamily: fonts.monoBold, fontSize: 8.5, lineHeight: 12, borderRadius: radius.pill, paddingHorizontal: 5, paddingVertical: 2, overflow: 'hidden' },
+  compactMetricIndicator: { flexShrink: 0, fontFamily: fonts.monoBold, fontSize: 10.5, lineHeight: 14, borderRadius: radius.pill, paddingHorizontal: 7, paddingVertical: 3, overflow: 'hidden' },
   positionBody: { padding: spacing(1.5) },
   trackFrame: { height: 48, marginHorizontal: 20, position: 'relative' },
   track: { position: 'absolute', left: 0, right: 0, top: 30, height: 4, borderRadius: radius.pill },
